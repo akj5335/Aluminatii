@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aluminati | Connect. Empower. Grow.</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Auto-redirect if logged in
+        if (localStorage.getItem('token')) {
+            window.location.href = 'dashboard.html';
+        }
+
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#06B6D4',
+                        accent: '#F43F5E',
+                        dark: '#0F172A',
+                        'dark-lighter': '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS & Icons -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="api.js"></script>
+
+    <style>
+        #canvas1 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -10;
+            background: linear-gradient(to bottom, #f8fafc, #eef2ff);
+        }
+
+        .dark #canvas1 {
+            background: linear-gradient(to bottom, #0F172A, #1e1b4b);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(79, 70, 229, 0.5);
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased selection:bg-primary selection:text-white">
+
+    <!-- Navbar is injected by script.js -->
+
+    <!-- Chat Bubble Widget -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button onclick="document.getElementById('aiChat').classList.toggle('hidden')"
+            class="w-14 h-14 bg-gradient-to-tr from-primary to-accent rounded-full flex items-center justify-center text-white text-2xl shadow-lg shadow-primary/40 hover:scale-110 transition-transform animate-bounce">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+        <!-- Chat Window -->
+        <div id="aiChat"
+            class="hidden absolute bottom-16 right-0 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden fade-in origin-bottom-right">
+            <div class="bg-primary p-4 text-white flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-brain"></i>
+                    <span class="font-bold">AlumiBot</span>
+                </div>
+                <button onclick="document.getElementById('aiChat').classList.add('hidden')"
+                    class="text-white/80 hover:text-white"><i class="fa-solid fa-times"></i></button>
+            </div>
+            <div class="h-64 p-4 overflow-y-auto bg-slate-50 dark:bg-slate-900 space-y-3 text-sm" id="chatMessages">
+                <div class="bg-white dark:bg-slate-800 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[80%]">
+                    Hello! I'm your AI alumni assistant. How can I help you connect today?
+                </div>
+            </div>
+            <div class="p-3 border-t border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <div class="flex gap-2">
+                    <input type="text" id="chatInput" placeholder="Type a message..."
+                        class="w-full px-3 py-2 bg-slate-100 dark:bg-slate-700 rounded-lg outline-none text-sm"
+                        onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button onclick="sendMessage()" id="chatSendBtn"
+                        class="text-primary hover:text-accent disabled:opacity-50"><i
+                            class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative min-h-screen flex items-center justify-center pt-10 overflow-hidden">
+        <canvas id="canvas1"></canvas>
+
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid lg:grid-cols-2 gap-12 items-center">
+
+            <!-- Hero Content -->
+            <div class="text-center lg:text-left space-y-8" data-aos="fade-right" data-aos-duration="1000">
+                <div
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-slate-800/50 backdrop-blur border border-indigo-100 dark:border-indigo-800 text-primary dark:text-indigo-300 text-sm font-medium">
+                    <span class="flex h-2 w-2 relative">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    Join 5,000+ Alumni
+                </div>
+
+                <h1
+                    class="font-heading text-5xl lg:text-7xl font-bold leading-tight text-slate-900 dark:text-white text-glow">
+                    Your Network is Your <br>
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">Net
+                        Worth</span>
+                </h1>
+
+                <p
+                    class="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
+                    Unlock the power of your alumni community. AI-driven mentorship, exclusive job opportunities, and
+                    lifelong connections await.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                    <button onclick="openModal('signup')"
+                        class="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-primary to-secondary text-white font-bold shadow-xl shadow-primary/30 hover:shadow-2xl hover:scale-105 transition-all">
+                        Get Started
+                    </button>
+                    <button
+                        class="w-full sm:w-auto px-8 py-4 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-semibold hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> View Leaderboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hero Visual -->
+            <div class="relative hidden lg:block" data-aos="fade-left" data-aos-duration="1200">
+                <!-- Main Glass Card -->
+                <div
+                    class="relative rounded-2xl overflow-hidden shadow-2xl shadow-indigo-500/20 border border-white/50 dark:border-slate-700/50 glass-card p-4 rotate-2 hover:rotate-0 transition-transform duration-500">
+
+                    <!-- Dashboard Mockup Internals -->
+                    <div class="bg-indigo-50/50 dark:bg-slate-900 rounded-xl overflow-hidden h-96 flex flex-col">
+                        <!-- Mock Navbar -->
+                        <div
+                            class="h-12 bg-white dark:bg-slate-800 border-b border-indigo-100 dark:border-slate-700 flex items-center px-4 justify-between shrink-0">
+                            <div class="flex gap-2">
+                                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                            </div>
+                            <div class="h-2 w-32 bg-slate-100 dark:bg-slate-700 rounded-full"></div>
+                            <div class="w-8 h-8 rounded-full bg-indigo-100 dark:bg-slate-700"></div>
+                        </div>
+
+                        <!-- Mock Content -->
+                        <div class="p-6 space-y-6 overflow-hidden">
+                            <!-- Welcome Banner -->
+                            <div
+                                class="bg-gradient-to-r from-primary to-secondary rounded-xl p-6 text-white text-left relative overflow-hidden">
+                                <div class="relative z-10">
+                                    <div class="text-xs font-medium text-indigo-100 mb-1">Good Morning,</div>
+                                    <div class="text-xl font-bold">Alex Morgan</div>
+                                    <div class="text-xs text-indigo-100 mt-2">You have 5 new connection requests.</div>
+                                </div>
+                                <div
+                                    class="absolute right-0 top-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2">
+                                </div>
+                            </div>
+
+                            <!-- Mock Stats -->
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="bg-white dark:bg-slate-800 p-3 rounded-lg text-center shadow-sm">
+                                    <div class="text-primary text-lg mb-1"><i class="fa-solid fa-users"></i></div>
+                                    <div class="text-sm font-bold text-slate-900 dark:text-white">1.2k</div>
+                                    <div class="text-[9px] text-slate-400 uppercase tracking-wider">Network</div>
+                                </div>
+                                <div class="bg-white dark:bg-slate-800 p-3 rounded-lg text-center shadow-sm">
+                                    <div class="text-secondary text-lg mb-1"><i class="fa-solid fa-briefcase"></i></div>
+                                    <div class="text-sm font-bold text-slate-900 dark:text-white">85</div>
+                                    <div class="text-[9px] text-slate-400 uppercase tracking-wider">Jobs</div>
+                                </div>
+                                <div class="bg-white dark:bg-slate-800 p-3 rounded-lg text-center shadow-sm">
+                                    <div class="text-accent text-lg mb-1"><i class="fa-solid fa-star"></i></div>
+                                    <div class="text-sm font-bold text-slate-900 dark:text-white">4.9</div>
+                                    <div class="text-[9px] text-slate-400 uppercase tracking-wider">Rating</div>
+                                </div>
+                            </div>
+
+                            <!-- Mock List -->
+                            <div class="space-y-3">
+                                <div
+                                    class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm border-l-4 border-green-500">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-green-500">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-xs font-bold text-slate-900 dark:text-white">Interview
+                                            Scheduled</div>
+                                        <div class="text-[10px] text-slate-500">Google • Tomorrow 10:00 AM</div>
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex items-center gap-3 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-sm border-l-4 border-primary">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-primary">
+                                        <i class="fa-solid fa-user-plus"></i>
+                                    </div>
+                                    <div class="text-left">
+                                        <div class="text-xs font-bold text-slate-900 dark:text-white">New Mentor Match
+                                        </div>
+                                        <div class="text-[10px] text-slate-500">Sarah J. • Product Manager</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating Cards -->
+                <div
+                    class="absolute -bottom-6 -left-6 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-xl animate-float border dark:border-slate-700 z-20 flex items-center gap-3 pr-6">
+                    <div class="relative">
+                        <img src="https://ui-avatars.com/api/?name=Alex+Morgan&background=0D8ABC&color=fff"
+                            class="w-10 h-10 rounded-full border-2 border-white shadow-sm">
+                        <div
+                            class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full">
+                        </div>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                            Status</p>
+                        <p class="text-sm font-bold text-green-600">Hired at Google</p>
+                    </div>
+                </div>
+
+                <div
+                    class="absolute -top-6 -right-6 bg-white dark:bg-slate-800 p-3 rounded-xl shadow-xl animate-float-delayed border dark:border-slate-700 z-20 flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-lg">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="text-left">
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                            Impact</p>
+                        <p class="text-sm font-bold text-slate-900 dark:text-white">Top 1% Mentor</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section with Scroll Animation -->
+    <section id="features" class="py-24 bg-white dark:bg-dark-lighter relative transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16" data-aos="fade-up">
+                <span class="text-primary font-bold tracking-wider uppercase text-sm">Features</span>
+                <h2 class="font-heading text-4xl font-bold text-slate-900 dark:text-white mt-2 mb-4">Everything you need
+                    to grow</h2>
+                <div class="w-20 h-1 bg-primary rounded-full mx-auto"></div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="p-8 rounded-3xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700 shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-3xl mb-6 shadow-lg shadow-indigo-600/30 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-network-wired"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Smart Networking</h3>
+                    <p class="text-slate-600 dark:text-slate-400">Our machine learning models analyze your profile to
+                        suggest the most valuable connections for your specific career path.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="p-8 rounded-3xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700 shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-pink-500 text-white flex items-center justify-center text-3xl mb-6 shadow-lg shadow-pink-500/30 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-calendar-star"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Exclusive Events</h3>
+                    <p class="text-slate-600 dark:text-slate-400">Access members-only reunions, webinars, and workshops.
+                        RSVP directly and see who's attending.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="p-8 rounded-3xl bg-slate-50 dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 border border-slate-100 dark:border-slate-700 shadow-lg hover:shadow-2xl transition-all duration-300 group"
+                    data-aos="fade-up" data-aos-delay="300">
+                    <div
+                        class="w-16 h-16 rounded-2xl bg-cyan-500 text-white flex items-center justify-center text-3xl mb-6 shadow-lg shadow-cyan-500/30 group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                    <h3 class="font-heading text-xl font-bold text-slate-900 dark:text-white mb-3">Career Portal</h3>
+                    <p class="text-slate-600 dark:text-slate-400">Fast-track your career with job referrals from alumni
+                        who work at your dream companies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-20 bg-primary text-white relative overflow-hidden">
+        <div class="absolute inset-0 bg-[url('https://grainy-gradients.com/noise.svg')] opacity-20"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-indigo-400/30">
+                <div class="space-y-2" data-aos="fade-up">
+                    <div class="text-4xl lg:text-5xl font-bold font-heading">5k+</div>
+                    <div class="text-indigo-100 font-medium">Active Alumni</div>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="100">
+                    <div class="text-4xl lg:text-5xl font-bold font-heading">200+</div>
+                    <div class="text-indigo-100 font-medium">Global Events</div>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="200">
+                    <div class="text-4xl lg:text-5xl font-bold font-heading">1.2k</div>
+                    <div class="text-indigo-100 font-medium">Mentorships</div>
+                </div>
+                <div class="space-y-2" data-aos="fade-up" data-aos-delay="300">
+                    <div class="text-4xl lg:text-5xl font-bold font-heading">500+</div>
+                    <div class="text-indigo-100 font-medium">Jobs Posted</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="py-24 bg-slate-50 dark:bg-dark relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <h2 class="font-heading text-3xl font-bold text-slate-900 dark:text-white">How It Works</h2>
+                <p class="text-slate-500 dark:text-slate-400 mt-2">Join the community in three simple steps.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-12 relative">
+                <!-- Connector Line -->
+                <div
+                    class="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-indigo-200 dark:via-indigo-800 to-transparent">
+                </div>
+
+                <!-- Step 1 -->
+                <div class="relative text-center space-y-4" data-aos="fade-up" data-aos-delay="0">
+                    <div
+                        class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-indigo-50 dark:border-indigo-900 flex items-center justify-center text-3xl font-bold text-primary shadow-xl relative z-10">
+                        1
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Sign Up</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Create your profile using your college
+                        ID or professional email to verify your alumni status.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative text-center space-y-4" data-aos="fade-up" data-aos-delay="150">
+                    <div
+                        class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-indigo-50 dark:border-indigo-900 flex items-center justify-center text-3xl font-bold text-secondary shadow-xl relative z-10">
+                        2
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Connect</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Browse the directory, join interest
+                        groups, and reach out to mentors in your field.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative text-center space-y-4" data-aos="fade-up" data-aos-delay="300">
+                    <div
+                        class="w-24 h-24 mx-auto bg-white dark:bg-slate-800 rounded-full border-4 border-indigo-50 dark:border-indigo-900 flex items-center justify-center text-3xl font-bold text-accent shadow-xl relative z-10">
+                        3
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-900 dark:text-white">Grow</h3>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">Attend events, apply for exclusive
+                        jobs, and give back by mentoring others.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-24 bg-white dark:bg-dark-lighter">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="font-heading text-3xl font-bold text-center text-slate-900 dark:text-white mb-16"
+                data-aos="fade-up">Success Stories</h2>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="glass-card p-8 rounded-2xl border border-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                    data-aos="fade-up">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-6">"Aluminati helped me land my dream job at
+                        Google! The mentorship program connected me with a senior engineer who guided me through the
+                        interview process."</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Priya+S&background=random"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-bold text-slate-900 dark:text-white">Priya Sharma</div>
+                            <div class="text-xs text-slate-500">Class of 2023 • Software Engineer</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="glass-card p-8 rounded-2xl border border-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-6">"Reconnecting with my old batchmates has
+                        never been easier. The event management feature is seamless and keeps us all in the loop."</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Rahul+V&background=random"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-bold text-slate-900 dark:text-white">Rahul Verma</div>
+                            <div class="text-xs text-slate-500">Class of 2019 • Product Manager</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review 3 -->
+                <div class="glass-card p-8 rounded-2xl border border-slate-100 dark:border-slate-700 dark:bg-slate-800"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div class="flex gap-1 text-amber-400 mb-4">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i
+                            class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <p class="text-slate-600 dark:text-slate-300 italic mb-6">"A game-changer for our college network. I
+                        found a co-founder for my startup through the directory search. Highly recommended!"</p>
+                    <div class="flex items-center gap-4">
+                        <img src="https://ui-avatars.com/api/?name=Amit+K&background=random"
+                            class="w-12 h-12 rounded-full">
+                        <div>
+                            <div class="font-bold text-slate-900 dark:text-white">Amit Kumar</div>
+                            <div class="text-xs text-slate-500">Class of 2021 • Founder</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-300 py-12 border-t border-slate-800">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="text-center md:text-left">
+                <h2 class="text-2xl font-bold text-white mb-2">Aluminati</h2>
+                <p class="text-sm text-slate-500">Connecting past, present, and future.</p>
+            </div>
+            <div class="flex gap-6">
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all"><i
+                        class="fa-brands fa-twitter"></i></a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all"><i
+                        class="fa-brands fa-linkedin-in"></i></a>
+                <a href="#"
+                    class="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-primary hover:text-white transition-all"><i
+                        class="fa-brands fa-instagram"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Auth Modal (Revamped) -->
+    <div id="auth-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity opacity-0" id="modal-backdrop"
+            onclick="closeModal()"></div>
+        <div class="relative flex min-h-screen items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-8 max-h-[90vh] overflow-y-auto transform scale-95 opacity-0 transition-all duration-300 border dark:border-slate-700"
+                id="modal-content">
+                <button onclick="closeModal()"
+                    class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-heading font-bold text-slate-900 dark:text-white" id="modal-title">Welcome
+                        Back</h3>
+                    <p class="text-slate-500 dark:text-slate-400">Please enter your details to sign in.</p>
+                </div>
+
+                <div id="modal-forms">
+                    <!-- Social Login Buttons -->
+                    <div class="space-y-3 mb-6">
+                        <a href="/auth/google"
+                            class="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-slate-200 dark:border-slate-600 rounded-xl hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-700 transition-all group">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="#4285F4"
+                                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                                <path fill="#34A853"
+                                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                                <path fill="#FBBC05"
+                                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                                <path fill="#EA4335"
+                                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                            </svg>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Continue with Google</span>
+                        </a>
+
+                        <a href="/auth/github"
+                            class="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-slate-200 dark:border-slate-600 rounded-xl hover:border-slate-900 dark:hover:border-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                            <svg class="w-5 h-5 fill-slate-900 dark:fill-white" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                            </svg>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Continue with GitHub</span>
+                        </a>
+
+                        <a href="/auth/linkedin"
+                            class="w-full flex items-center justify-center gap-3 py-3 px-4 border-2 border-slate-200 dark:border-slate-600 rounded-xl hover:border-blue-700 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="#0A66C2"
+                                    d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                            </svg>
+                            <span class="font-semibold text-slate-700 dark:text-slate-300">Continue with LinkedIn</span>
+                        </a>
+                    </div>
+
+                    <div class="relative mb-6">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-slate-200 dark:border-slate-700"></div>
+                        </div>
+                        <div class="relative flex justify-center text-sm">
+                            <span class="px-4 bg-white dark:bg-slate-800 text-slate-500">Or continue with email</span>
+                        </div>
+                    </div>
+
+                    <!-- Login Form -->
+                    <form id="loginForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email
+                                Address</label>
+                            <input type="email" id="email"
+                                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                placeholder="you@example.com" required>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Password</label>
+                            <input type="password" id="password"
+                                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                placeholder="••••••••" required>
+                        </div>
+                        <button type="submit"
+                            class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:bg-indigo-600 transition-all">Sign
+                            In</button>
+                    </form>
+
+                    <!-- Sign Up Form (Initially Hidden) -->
+                    <form id="signupForm" class="space-y-4 hidden">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full
+                                Name</label>
+                            <input type="text" id="signupName"
+                                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email
+                                Address</label>
+                            <input type="email" id="signupEmail"
+                                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pwd</label>
+                                <input type="password" id="signupPassword"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                    required>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Confirm</label>
+                                <input type="password" id="signupConfirm"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Batch</label>
+                                <input type="number" id="batchYear"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary transition-all"
+                                    required>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CollegeID</label>
+                                <input type="text" id="collegeId"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary transition-all"
+                                    required>
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Branch</label>
+                            <input type="text" id="branch"
+                                class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary transition-all"
+                                required>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Degree</label>
+                                <input type="text" id="degree"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary transition-all"
+                                    required>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Gender</label>
+                                <select id="gender"
+                                    class="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-primary transition-all"
+                                    required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:bg-indigo-600 transition-all">Create
+                            Account</button>
+                    </form>
+                </div>
+
+                <div class="mt-6 text-center">
+                    <p class="text-sm text-slate-600 dark:text-slate-400">
+                        <span id="toggle-text">Don't have an account?</span>
+                        <button type="button"
+                            onclick="document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('signupForm').classList.toggle('hidden'); document.getElementById('modal-title').innerText = document.getElementById('signupForm').classList.contains('hidden') ? 'Welcome Back' : 'Create Account'"
+                            class="text-primary font-semibold hover:underline" id="toggle-btn">Sign Up</button>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Logic Script -->
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            try {
+                const response = await apiFetch('/auth/login', 'POST', { email, password });
+                if (response.token) {
+                    localStorage.setItem('token', response.token);
+                    localStorage.setItem('user', JSON.stringify(response.user));
+                    showToast(`Welcome back, ${response.user.name}!`);
+                    closeModal();
+                    setTimeout(() => window.location.href = 'profile.html', 1000);
+                } else {
+                    showToast(response.message || 'Login failed', 'error');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('signupName').value,
+                email: document.getElementById('signupEmail').value,
+                password: document.getElementById('signupPassword').value,
+                collegeId: document.getElementById('collegeId').value,
+                batchYear: parseInt(document.getElementById('batchYear').value),
+                branch: document.getElementById('branch').value,
+                degree: document.getElementById('degree').value,
+                gender: document.getElementById('gender').value
+            };
+            const confirm = document.getElementById('signupConfirm').value;
+            if (data.password !== confirm) return showToast("Passwords do not match", 'error');
+
+            try {
+                const response = await apiFetch('/auth/register', 'POST', data);
+                if (response.token) {
+                    localStorage.setItem('token', response.token);
+                    localStorage.setItem('user', JSON.stringify(response.user));
+                    showToast('Account created successfully!');
+                    closeModal();
+                    setTimeout(() => window.location.href = 'profile.html', 1000);
+                } else {
+                    showToast(response.message || 'Registration failed', 'error');
+                }
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        });
+    </script>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+    <script src="particles.js"></script>
+    <script>
+        AOS.init({
+            once: true,
+            offset: 100
+        });
+    </script>
+    <!-- Chatbot Logic -->
+    <script>
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messages = document.getElementById('chatMessages');
+            const text = input.value.trim();
+
+            if (!text) return;
+
+            // Add User Message
+            appendMessage(text, 'user');
+            input.value = '';
+
+            // Scroll to bottom
+            messages.scrollTop = messages.scrollHeight;
+
+            // Simulate AI Delay & Response
+            setTimeout(() => {
+                const response = getBotResponse(text);
+                appendMessage(response, 'bot');
+                messages.scrollTop = messages.scrollHeight;
+            }, 1000);
+        }
+
+        function appendMessage(text, sender) {
+            const messages = document.getElementById('chatMessages');
+            const isBot = sender === 'bot';
+
+            const div = document.createElement('div');
+            div.className = isBot
+                ? 'bg-white dark:bg-slate-800 p-3 rounded-lg rounded-tl-none shadow-sm max-w-[80%] self-start'
+                : 'bg-primary text-white p-3 rounded-lg rounded-tr-none shadow-sm max-w-[80%] ml-auto';
+            div.innerHTML = text.replace(/\n/g, '<br>');
+
+            messages.appendChild(div);
+        }
+
+        function getBotResponse(input) {
+            input = input.toLowerCase();
+
+            // Greetings
+            if (input.match(/(hello|hi|hey|greetings|morning|afternoon)/)) {
+                return "Hello! nice to meet you. I'm AlumiBot, your personal guide to the Aluminati network. How can I assist you today? You can ask about <b>Jobs</b>, <b>Mentorship</b>, <b>Events</b>, or <b>Networking</b>.";
+            }
+
+            // Career & Jobs
+            if (input.match(/(job|career|work|internship|hiring|opportunity|vacancy)/)) {
+                return "Looking to advance your career? \n\n🔹 <a href='jobs.html' class='underline font-bold'>Visit the Job Board</a> to find exclusive listings from alumni.\n🔹 You can also filter by 'Remote' or 'Full-time' to find exactly what you need.";
+            }
+
+            // Mentorship
+            if (input.match(/(mentor|guide|advice|help|learn|teaching|coach)/)) {
+                return "Mentorship is at the heart of our community! 🎓\n\nWe have over 500+ experienced alumni statistics. <a href='mentorship.html' class='underline font-bold'>Click here to find a mentor</a> who matches your field of interest.";
+            }
+
+            // Events
+            if (input.match(/(event|meetup|webinar|reunion|seminar|workshop|date)/)) {
+                return "Don't miss out on the action! 🗓️\n\nCheck out our <a href='events.html' class='underline font-bold'>Upcoming Events</a>. We have a 'Tech Talk' webinar this Friday and the 'Annual Algebra Reunion' next month.";
+            }
+
+            // Networking / Directory
+            if (input.match(/(network|connect|people|alumni|find|search|directory|friend)/)) {
+                return "Your network is your net worth! 💼\n\nUse our <a href='directory.html' class='underline font-bold'>Alumni Directory</a> to search for peers by company, batch, or location. Try searching for 'Google' or '2024'!";
+            }
+
+            // Profile / Account
+            if (input.match(/(profile|account|login|sign|register|password|update|photo)/)) {
+                if (localStorage.getItem('token')) {
+                    return "You can manage your profile, update your bio, and add your latest achievements in the <a href='profile.html' class='underline font-bold'>Dashboard</a>.";
+                } else {
+                    return "To access all features, please <a href='#' onclick='openModal(\"login\")' class='underline font-bold'>Log In</a> or <a href='#' onclick='openModal(\"signup\")' class='underline font-bold'>Sign Up</a>.";
+                }
+            }
+
+            // About Platform
+            if (input.match(/(about|aluminati|what is|purpose|goal|mission)/)) {
+                return "Aluminati is an AI-powered platform designed to bridge the gap between students and alumni. We facilitate meaningful connections through smart matching, events, and career support.";
+            }
+
+            // Gratitude
+            if (input.match(/(thanks|thank|cool|awesome|great|good|nice)/)) {
+                return "You're very welcome! 😊 Let me know if there's anything else I can help with.";
+            }
+
+            // Default Fallback
+            return "I'm listening! While I'm still learning, I can help you with:\n\n• 🏢 <b>Finding Jobs</b>\n• 🤝 <b>Connecting with Mentors</b>\n• 📅 <b>Upcoming Events</b>\n• 🔍 <b>Searching the Directory</b>\n\nWhat would you like to explore?";
+        }
+        <!-- OAuth Callback Handler -->
+        <script>
+        // Handle OAuth callback with token
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const userParam = urlParams.get('user');
+
+            if (token && userParam) {
+            try {
+                const user = JSON.parse(decodeURIComponent(userParam));
+            localStorage.setItem('token', token);
+            localStorage.setItem('user', JSON.stringify(user));
+            showToast(`Welcome ${user.name}!`);
+                setTimeout(() => {
+                window.location.href = 'dashboard.html';
+                }, 1000);
+            } catch(e) {
+                showToast('OAuth login successful, redirecting...', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            }
+        }
+    </script>
+</body>
+
+</html>

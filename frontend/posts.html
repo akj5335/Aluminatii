@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Community Feed | Aluminati</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+          colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="api.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+  <!-- Navbar injected by script.js -->
+
+  <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-3xl mx-auto">
+
+    <!-- Create Post Widget -->
+    <div class="glass-card p-6 rounded-2xl mb-8 fade-in dark:bg-slate-800 border dark:border-slate-700">
+      <div class="flex gap-4">
+        <img id="currentUserAvatar" src="https://ui-avatars.com/api/?name=User"
+          class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 object-cover">
+        <div class="flex-1">
+          <form id="createPostForm">
+            <textarea id="postContent" placeholder="Share your achievements, questions, or updates..." rows="2"
+              class="w-full bg-transparent border-none outline-none text-lg placeholder-slate-400 dark:placeholder-slate-500 resize-none"></textarea>
+            <div class="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+              <div class="flex gap-2 text-slate-400">
+                <button type="button" class="hover:text-primary transition-colors"><i
+                    class="fa-regular fa-image text-lg"></i></button>
+                <button type="button" class="hover:text-primary transition-colors"><i
+                    class="fa-solid fa-link text-lg"></i></button>
+              </div>
+              <button type="submit"
+                class="px-6 py-2 rounded-full bg-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all">Post</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feed Container -->
+    <div id="feed-container" class="space-y-6">
+      <!-- Loading Skeletons -->
+      <div class="glass-card p-6 rounded-2xl animate-pulse space-y-4">
+        <div class="flex gap-4">
+          <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+          <div class="space-y-2">
+            <div class="w-32 h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="w-24 h-3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+          </div>
+        </div>
+        <div class="h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    // Set user avatar on load
+    const user = getUser();
+    if (user.photoURL) document.getElementById('currentUserAvatar').src = user.photoURL;
+    else if (user.name) document.getElementById('currentUserAvatar').src = `https://ui-avatars.com/api/?name=${user.name}`;
+
+    async function loadPosts() {
+      const container = document.getElementById('feed-container');
+
+      try {
+        const posts = await apiFetch('/api/posts'); // Assuming standard route
+        container.innerHTML = '';
+
+        if (!posts || posts.length === 0) {
+          container.innerHTML = `
+                        <div class="text-center py-10 opacity-70">
+                            <i class="fa-solid fa-quote-left text-4xl text-slate-300 mb-4"></i>
+                            <p>No posts yet. Be the first to share something!</p>
+                        </div>
+                    `;
+          return;
+        }
+
+        posts.forEach(post => {
+          // Safety checks if populate failed
+          const authorName = post.user ? post.user.name : 'Unknown User';
+          const authorPhoto = (post.user && post.user.photoURL)
+            ? post.user.photoURL
+            : `https://ui-avatars.com/api/?name=${authorName}`;
+          const date = new Date(post.createdAt).toLocaleDateString();
+
+          const html = `
+                    <div class="glass-card p-6 rounded-2xl dark:bg-slate-800 border dark:border-slate-700 fade-in">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="flex gap-4">
+                                <img src="${authorPhoto}" class="w-12 h-12 rounded-full object-cover border-2 border-white dark:border-slate-600">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white">${authorName}</h4>
+                                    <p class="text-xs text-slate-500">${date}</p>
+                                </div>
+                            </div>
+                            <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-ellipsis"></i></button>
+                        </div>
+                        
+                        <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed mb-6">${post.content}</p>
+                        
+                        <div class="flex items-center gap-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-slate-500">
+                            <button class="flex items-center gap-2 hover:text-accent transition-colors">
+                                <i class="fa-regular fa-heart"></i> ${post.likes ? post.likes.length : 0}
+                            </button>
+                            <button class="flex items-center gap-2 hover:text-primary transition-colors">
+                                <i class="fa-regular fa-comment"></i> ${post.comments ? post.comments.length : 0}
+                            </button>
+                            <button class="flex items-center gap-2 hover:text-secondary transition-colors ml-auto">
+                                <i class="fa-solid fa-share-nodes"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                    `;
+          container.insertAdjacentHTML('beforeend', html);
+        });
+
+      } catch (err) {
+        console.error(err);
+        if (container.children.length === 1 && container.children[0].classList.contains('animate-pulse')) {
+          container.innerHTML = `<p class="text-red-500 text-center">Failed to load feed.</p>`;
+        }
+      }
+    }
+
+    document.getElementById('createPostForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const content = document.getElementById('postContent').value.trim();
+      if (!content) return;
+
+      try {
+        await apiFetch('/api/posts', 'POST', { content });
+        document.getElementById('postContent').value = '';
+        showToast('Post published!');
+        loadPosts(); // Reload feed
+      } catch (err) {
+        showToast(err.message || 'Failed to post', 'error');
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', loadPosts);
+  </script>
+</body>
+
+</html>

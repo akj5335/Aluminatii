@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Aluminati</title>
+
+    <!-- Fonts --
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind & Custom CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Scripts -->
+    <script src="api.js"></script>
+</head>
+
+<body class="bg-indigo-50/50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+    <!-- Navbar injected by script.js -->
+
+    <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+
+        <!-- Sidebar -->
+        <aside class="w-full md:w-64 flex-shrink-0 space-y-6">
+            <!-- Profile Summary Card -->
+            <div
+                class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 text-center">
+                <div class="relative w-24 h-24 mx-auto mb-4">
+                    <img id="sidebarAvatar" src="https://ui-avatars.com/api/?name=User"
+                        class="w-full h-full rounded-full object-cover border-4 border-indigo-50 dark:border-indigo-900">
+                </div>
+
+                <h2 id="sidebarName" class="text-xl font-heading font-bold text-slate-900 dark:text-white">Loading...
+                </h2>
+                <p id="sidebarRole" class="text-sm text-slate-500 dark:text-slate-400 mb-4">Alumni</p>
+
+                <div class="flex justify-center gap-2">
+                    <a href="#"
+                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition-colors"><i
+                            class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="#"
+                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-black hover:text-white transition-colors"><i
+                            class="fa-brands fa-github"></i></a>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <div
+                class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+                <nav class="flex flex-col p-2">
+                    <a href="dashboard.html"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-primary font-medium transition-colors">
+                        <i class="fa-solid fa-house"></i> Overview
+                    </a>
+                    <a href="profile.html"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-user"></i> My Profile
+                    </a>
+                    <a href="posts.html"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-rss"></i> Feed
+                    </a>
+                    <a href="mentorship.html"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-graduation-cap"></i> Mentorship
+                    </a>
+                    <a href="programs.html"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                        <i class="fa-solid fa-briefcase"></i> Jobs
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 space-y-8">
+            <!-- Welcome Banner -->
+            <div
+                class="bg-gradient-to-r from-primary to-secondary rounded-2xl p-8 text-white shadow-lg relative overflow-hidden">
+                <div
+                    class="absolute right-0 top-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2">
+                </div>
+
+                <h2 id="welcomeMsg" class="text-3xl font-heading font-bold mb-2">Welcome back!</h2>
+                <p class="text-indigo-100 max-w-xl">You have 3 new connection requests and 2 upcoming events this week.
+                    Stay connected and keep growing!</p>
+
+                <div class="flex gap-4 mt-6">
+                    <a href="posts.html"
+                        class="px-5 py-2 bg-white text-primary font-semibold rounded-lg shadow-sm hover:translate-y-0.5 transition-transform">See
+                        Latest Updates</a>
+                    <a href="events.html"
+                        class="px-5 py-2 bg-white/20 text-white font-semibold rounded-lg hover:bg-white/30 transition-colors">View
+                        Calendar</a>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div
+                    class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="text-xs font-bold text-green-500 bg-green-50 px-2 py-1 rounded-full">+4 this
+                            week</span>
+                    </div>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white">42</p>
+                    <p class="text-sm text-slate-500">Total Connections</p>
+                </div>
+                <div
+                    class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white">128</p>
+                    <p class="text-sm text-slate-500">Profile Views</p>
+                </div>
+                <div
+                    class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                    <div class="flex items-center justify-between mb-4">
+                        <div
+                            class="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center">
+                            <i class="fa-solid fa-briefcase"></i>
+                        </div>
+                    </div>
+                    <p class="text-3xl font-bold text-slate-900 dark:text-white">5</p>
+                    <p class="text-sm text-slate-500">Job Applications</p>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-8">
+                <!-- Recommended Jobs -->
+                <div
+                    class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Recommended Jobs</h3>
+                        <a href="jobs.html" class="text-sm text-primary font-medium hover:underline">View All</a>
+                    </div>
+                    <div class="space-y-4" id="recommendedJobs">
+                        <div class="animate-pulse flex gap-4">
+                            <div class="w-12 h-12 bg-slate-200 rounded-lg"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-slate-200 w-2/3 rounded"></div>
+                                <div class="h-3 bg-slate-200 w-1/2 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upcoming Events -->
+                <div
+                    class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-slate-900 dark:text-white">Upcoming Events</h3>
+                        <a href="events.html" class="text-sm text-primary font-medium hover:underline">View All</a>
+                    </div>
+                    <div class="space-y-4" id="upcomingEvents">
+                        <div class="animate-pulse flex gap-4">
+                            <div class="w-12 h-12 bg-slate-200 rounded-lg"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-4 bg-slate-200 w-2/3 rounded"></div>
+                                <div class="h-3 bg-slate-200 w-1/2 rounded"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Script to load profile data -->
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!isLoggedIn()) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Load Basic User Info
+            const user = getUser();
+            document.getElementById('sidebarName').textContent = user.name;
+            document.getElementById('welcomeMsg').textContent = `Welcome back, ${user.name.split(' ')[0]}!`;
+            if (user.photoURL) document.getElementById('sidebarAvatar').src = user.photoURL;
+
+            // Load Smart Job Recommendations
+            try {
+                const jobs = await apiFetch('/api/jobs/recommended');
+                const container = document.getElementById('recommendedJobs');
+                container.innerHTML = '';
+
+                if (jobs.length === 0) {
+                    container.innerHTML = '<p class="text-sm text-slate-500 text-center py-8">No job recommendations yet. Add skills to your profile!</p>';
+                    return;
+                }
+
+                jobs.slice(0, 3).forEach(job => {
+                    const matchBadge = job.matchScore ? `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">${job.matchScore}% match</span>` : '';
+                    const reasons = job.matchReasons && job.matchReasons.length > 0 ? `<p class="text-xs text-green-600 mt-1">✓ ${job.matchReasons.join(', ')}</p>` : '';
+
+                    const html = `
+                    <div class="flex items-start gap-4 hover:bg-slate-50 dark:hover:bg-slate-800 p-3 rounded-lg transition-colors cursor-pointer border-l-2 border-green-500" onclick="window.location.href='jobs.html'">
+                        <div class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-slate-500 font-bold uppercase text-sm shrink-0">
+                            ${job.company.substring(0, 2)}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between gap-2">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 dark:text-white text-sm">${job.title}</h4>
+                                    <p class="text-xs text-slate-500">${job.company} • ${job.location || 'Remote'}</p>
+                                    ${reasons}
+                                </div>
+                                ${matchBadge}
+                            </div>
+                        </div>
+                    </div>`;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            } catch (e) {
+                console.error("Jobs load error", e);
+                document.getElementById('recommendedJobs').innerHTML = '<p class="text-sm text-slate-500">Failed to load recommendations</p>';
+            }
+
+            // Load Events Preview
+            try {
+                const events = await apiFetch('/api/events');
+                const container = document.getElementById('upcomingEvents');
+                container.innerHTML = '';
+
+                events.slice(0, 3).forEach(event => {
+                    const date = new Date(event.date);
+                    const html = `
+                    <div class="flex items-center gap-4 hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-lg transition-colors cursor-pointer" onclick="window.location.href='events.html'">
+                        <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg flex flex-col items-center justify-center text-primary">
+                             <span class="text-xs font-bold uppercase">${date.toLocaleString('default', { month: 'short' })}</span>
+                             <span class="font-bold leading-none">${date.getDate()}</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-900 dark:text-white text-sm">${event.title}</h4>
+                            <p class="text-xs text-slate-500">${event.location || 'Online'}</p>
+                        </div>
+                    </div>`;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+            } catch (e) { console.error("Events load error", e); }
+        });
+    </script>
+</body>
+
+</html>

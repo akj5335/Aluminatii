@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Aluminati</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind & Custom CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+          colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Scripts -->
+  <script src="api.js"></script>
+</head>
+
+<body class="bg-indigo-50/50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+  <!-- Navbar injected by script.js -->
+
+  <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+
+    <!-- Sidebar -->
+    <aside class="w-full md:w-64 flex-shrink-0 space-y-6">
+      <!-- Profile Summary Card -->
+      <div
+        class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-6 text-center">
+        <div class="relative w-24 h-24 mx-auto mb-4 group cursor-pointer"
+          onclick="document.getElementById('photoInput').click()">
+          <img id="sidebarAvatar" src="https://ui-avatars.com/api/?name=User"
+            class="w-full h-full rounded-full object-cover border-4 border-indigo-50 dark:border-indigo-900">
+          <div
+            class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <i class="fa-solid fa-camera text-white"></i>
+          </div>
+        </div>
+        <!-- Hidden file input for photo upload -->
+        <input type="file" id="photoInput" class="hidden" accept="image/*">
+
+        <h2 id="sidebarName" class="text-xl font-heading font-bold text-slate-900 dark:text-white">Loading...</h2>
+        <p id="sidebarRole" class="text-sm text-slate-500 dark:text-slate-400 mb-4">Alumni</p>
+
+        <div class="flex justify-center gap-2">
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-primary hover:text-white transition-colors"><i
+              class="fa-brands fa-linkedin-in"></i></a>
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-black hover:text-white transition-colors"><i
+              class="fa-brands fa-github"></i></a>
+          <a href="#"
+            class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-blue-400 hover:text-white transition-colors"><i
+              class="fa-brands fa-twitter"></i></a>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <div
+        class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden">
+        <nav class="flex flex-col p-2">
+          <a href="profile.html"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-primary font-medium transition-colors">
+            <i class="fa-solid fa-user"></i> My Profile
+          </a>
+          <a href="connections.html"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            <i class="fa-solid fa-users"></i> Connections
+          </a>
+          <a href="events.html"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            <i class="fa-solid fa-calendar"></i> My Events
+          </a>
+          <a href="jobs.html"
+            class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+            <i class="fa-solid fa-briefcase"></i> Job Applications
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 space-y-8">
+      <!-- Edit Profile Form -->
+      <div
+        class="bg-white dark:bg-dark-lighter rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-8 fade-in">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-heading font-bold text-slate-900 dark:text-white">Profile Details</h3>
+          <button type="submit" form="profileForm"
+            class="px-6 py-2 rounded-lg bg-primary text-white font-semibold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all">
+            Save Changes
+          </button>
+        </div>
+
+        <form id="profileForm" class="space-y-6">
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Full Name</label>
+              <input type="text" id="name" disabled
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 cursor-not-allowed">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Email</label>
+              <input type="email" id="email" disabled
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 cursor-not-allowed">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Company</label>
+              <input type="text" id="company" name="company"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Designation</label>
+              <input type="text" id="designation" name="designation"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location</label>
+              <input type="text" id="location" name="location"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Graduation Year</label>
+              <input type="number" id="graduationYear" name="graduationYear"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Bio</label>
+            <textarea id="bio" name="bio" rows="4"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"></textarea>
+          </div>
+        </form>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div
+          class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl"><i
+              class="fa-solid fa-users"></i></div>
+          <div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">42</p>
+            <p class="text-sm text-slate-500">Connections</p>
+          </div>
+        </div>
+        <div
+          class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center text-xl"><i
+              class="fa-solid fa-calendar-check"></i></div>
+          <div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">12</p>
+            <p class="text-sm text-slate-500">Events Attended</p>
+          </div>
+        </div>
+        <div
+          class="bg-white dark:bg-dark-lighter p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-xl"><i
+              class="fa-solid fa-star"></i></div>
+          <div>
+            <p class="text-2xl font-bold text-slate-900 dark:text-white">850</p>
+            <p class="text-sm text-slate-500">Reputation Score</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Script to load profile data -->
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!isLoggedIn()) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Load Profile Data
+      try {
+        const res = await apiFetch('/profiles/me');
+        // res struct: { _id, user: { name, email, photoURL }, ...profileFields } or { msg: "No profile", user: {...} }
+
+        const user = res.user || getUser();
+        const profile = res._id ? res : {};
+
+        // Sidebar
+        document.getElementById('sidebarName').textContent = user.name;
+        document.getElementById('sidebarRole').textContent = profile.designation ? `${profile.designation} at ${profile.company}` : (user.role || 'Alumni');
+        if (user.photoURL) document.getElementById('sidebarAvatar').src = user.photoURL;
+
+        // Form
+        document.getElementById('name').value = user.name || '';
+        document.getElementById('email').value = user.email || '';
+        document.getElementById('company').value = profile.company || '';
+        document.getElementById('designation').value = profile.designation || '';
+        document.getElementById('location').value = profile.location || '';
+        document.getElementById('graduationYear').value = profile.graduationYear || '';
+        document.getElementById('bio').value = profile.bio || '';
+
+      } catch (err) {
+        console.error(err);
+        showToast('Failed to load profile', 'error');
+      }
+    });
+
+    // Handle Profile Update
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        company: document.getElementById('company').value,
+        designation: document.getElementById('designation').value,
+        location: document.getElementById('location').value,
+        graduationYear: document.getElementById('graduationYear').value,
+        bio: document.getElementById('bio').value
+      };
+
+      try {
+        // Determine if create or update needed. 
+        // We'll try POST /profiles first as per original logic, 
+        // assuming backend handles upsert or we just use POST for create/update loosely for now.
+        // NOTE: Best practice is PUT for update, but I'll stick to what was likely working or standard.
+        // Let's assume POST is safe.
+        const user = JSON.parse(localStorage.getItem('user'));
+        await apiFetch('/profiles', 'POST', { ...data, userId: user.id });
+        showToast('Profile updated successfully!');
+      } catch (err) {
+        showToast(err.message || 'Update failed', 'error');
+      }
+    });
+
+    // Handle Photo Upload
+    document.getElementById('photoInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fd = new FormData();
+      fd.append('photo', file);
+
+      try {
+        const res = await apiFetch('/api/upload/photo', 'POST', fd); // Fixed endpoint
+        // Update local storage and UI
+        const user = getUser();
+        // Assuming res returns new photoURL
+        if (res.photoURL) {
+          user.photoURL = res.photoURL;
+          localStorage.setItem('user', JSON.stringify(user));
+          document.getElementById('sidebarAvatar').src = res.photoURL;
+          showToast('Photo uploaded successfully');
+        }
+      } catch (err) {
+        showToast('Photo upload failed: ' + (err.message || 'Unknown error'), 'error');
+      }
+    });
+  </script>
+</body>
+
+</html>

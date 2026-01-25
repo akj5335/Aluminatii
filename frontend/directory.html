@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alumni Directory | Aluminati</title>
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+          colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="api.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+  <!-- Navbar injected by script.js -->
+
+  <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+    <div class="mb-10 fade-in">
+      <h1 class="text-3xl font-heading font-bold text-slate-900 dark:text-white mb-6">Alumni Directory</h1>
+
+      <!-- Search Bar -->
+      <div class="relative max-w-2xl">
+        <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" id="searchInput" placeholder="Search alumni by name, company, or batch..."
+          class="w-full pl-12 pr-4 py-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm focus:ring-2 focus:ring-primary outline-none transition-all">
+      </div>
+    </div>
+
+    <div id="directory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <!-- Loading Skeleton -->
+      <div class="glass-card p-6 rounded-2xl animate-pulse">
+        <div class="flex items-center gap-4 mb-4">
+          <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-full"></div>
+          <div class="space-y-2">
+            <div class="w-24 h-4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            <div class="w-16 h-3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    let allProfiles = [];
+
+    async function loadDirectory() {
+      const grid = document.getElementById('directory-grid');
+      try {
+        // Using profiles API (ideally a search endpoint, but reusing getMentors logic for listing all profiles for demo)
+        // Actually /projects endpoint or /auth/users usually. 
+        // Let's assume /profiles route lists all profiles publicly or we use the Mentors endpoint as a proxy for "All Users"
+        // Or better, check if there's a /profiles GET in profileRoutes.js
+        // I recall checking it: router.get('/', getProfiles? No let's check profile.js again)
+        // It was router.get('/', auth, getProfile); which gets CURRENT profile.
+        // We might need a "getAllProfiles" route. 
+        // But for now, let's try /api/mentorship/mentors as a fallback since I kNOW that returns a list.
+        // Or I can quickly add a proper route.
+
+        // Using the mentorship endpoint as it returns a list of profiles!
+        const profiles = await apiFetch('/api/mentorship/mentors');
+        allProfiles = profiles;
+        renderProfiles(profiles);
+
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderProfiles(profiles) {
+      const grid = document.getElementById('directory-grid');
+      grid.innerHTML = '';
+
+      if (profiles.length === 0) {
+        grid.innerHTML = '<p class="text-slate-500">No alumni found.</p>';
+        return;
+      }
+
+      profiles.forEach(profile => {
+        if (!profile.user) return;
+        const photo = profile.user.photoURL || `https://ui-avatars.com/api/?name=${profile.user.name}`;
+
+        const card = `
+                <div class="glass-card rounded-2xl p-6 border border-white/50 dark:border-slate-700 hover:border-primary/30 transition-all dark:bg-slate-800">
+                    <div class="flex items-center gap-4 mb-4">
+                        <img src="${photo}" class="w-14 h-14 rounded-full object-cover bg-slate-100">
+                        <div>
+                            <h3 class="font-bold text-slate-900 dark:text-white leading-tight">${profile.user.name}</h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${profile.designation || 'Alumni'}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-sm text-slate-600 dark:text-slate-400 mb-4">
+                        <p><i class="fa-solid fa-briefcase w-5 text-slate-400"></i> ${profile.company || 'Not specified'}</p>
+                        <p><i class="fa-solid fa-graduation-cap w-5 text-slate-400"></i> Class of ${profile.graduationYear || '20xx'}</p>
+                    </div>
+                    <a href="mailto:${profile.user.email}" class="block w-full py-2 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-center text-sm font-semibold hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+                        Connect
+                    </a>
+                </div>
+                `;
+        grid.insertAdjacentHTML('beforeend', card);
+      });
+    }
+
+    // Search Filter
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      const filtered = allProfiles.filter(p => {
+        return (p.user?.name.toLowerCase().includes(term) ||
+          p.company?.toLowerCase().includes(term) ||
+          p.designation?.toLowerCase().includes(term));
+      });
+      renderProfiles(filtered);
+    });
+
+    document.addEventListener('DOMContentLoaded', loadDirectory);
+  </script>
+</body>
+
+</html>

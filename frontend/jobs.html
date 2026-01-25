@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jobs | Aluminati</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="api.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+    <!-- Navbar injected by script.js -->
+
+    <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 fade-in">
+            <div>
+                <h1 class="text-3xl font-heading font-bold text-slate-900 dark:text-white">Job Board</h1>
+                <p class="text-slate-500 dark:text-slate-400 mt-1">Exclusive opportunities from our alumni network.</p>
+            </div>
+            <button onclick="document.getElementById('createJobModal').classList.remove('hidden')"
+                class="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold shadow-lg hover:bg-primary dark:hover:bg-slate-200 transition-all">
+                <i class="fa-solid fa-plus mr-2"></i> Post a Job
+            </button>
+        </div>
+
+        <!-- Jobs Container -->
+        <div id="jobs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+            <!-- Loading Skeleton -->
+            <div class="glass-card rounded-2xl p-6 space-y-4 animate-pulse">
+                <div class="flex gap-4">
+                    <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
+                    <div class="space-y-2 flex-1">
+                        <div class="h-4 w-1/3 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                        <div class="h-3 w-1/4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+                    </div>
+                </div>
+                <div class="h-20 bg-slate-200 dark:bg-slate-700 rounded"></div>
+            </div>
+        </div>
+
+        <!-- No Jobs State -->
+        <div id="no-jobs" class="hidden text-center py-20">
+            <div
+                class="w-20 h-20 bg-cyan-50 dark:bg-cyan-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-secondary text-3xl">
+                <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">No Jobs Found</h3>
+            <p class="text-slate-500 dark:text-slate-400">Share an opportunity with your network!</p>
+        </div>
+    </main>
+
+    <!-- Post Job Modal -->
+    <div id="createJobModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+        </div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all border dark:border-slate-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Post a Job</h3>
+                    <button onclick="document.getElementById('createJobModal').classList.add('hidden')"
+                        class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <form id="createJobForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Job
+                            Title</label>
+                        <input type="text" name="title" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Company
+                            Name</label>
+                        <input type="text" name="company" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+                            <select name="type"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                                <option value="Full-time">Full-time</option>
+                                <option value="Part-time">Part-time</option>
+                                <option value="Internship">Internship</option>
+                                <option value="Remote">Remote</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Salary
+                                Range</label>
+                            <input type="text" name="salary" placeholder="e.g. $80k - $120k"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+                        <textarea name="description" rows="3"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Application
+                            Link / Email</label>
+                        <input type="text" name="link" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all mt-4">Post
+                        Opportunity</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadJobs() {
+            const grid = document.getElementById('jobs-grid');
+            const noJobs = document.getElementById('no-jobs');
+
+            try {
+                const jobs = await apiFetch('/api/jobs');
+                grid.innerHTML = '';
+
+                if (!jobs || jobs.length === 0) {
+                    noJobs.classList.remove('hidden');
+                    return;
+                }
+
+                noJobs.classList.add('hidden');
+
+                jobs.forEach(job => {
+                    const daysAgo = Math.floor((new Date() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24));
+                    const timeAgo = daysAgo === 0 ? 'Today' : `${daysAgo}d ago`;
+
+                    const card = `
+                    <div class="glass-card rounded-2xl p-6 border border-white/50 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-cyan-500/10 dark:hover:shadow-cyan-900/20 transition-all group dark:bg-slate-800 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="flex gap-4">
+                                    <div class="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center text-xl text-slate-500 font-bold uppercase">
+                                        ${job.company.substring(0, 2)}
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors">${job.title}</h3>
+                                        <p class="text-sm text-slate-500 dark:text-slate-400">${job.company}</p>
+                                    </div>
+                                </div>
+                                <span class="bg-indigo-50 dark:bg-indigo-900/30 text-primary text-xs font-semibold px-2 py-1 rounded">${job.type}</span>
+                            </div>
+                            
+                            <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">${job.description || 'No description.'}</p>
+                            
+                            <div class="flex flex-wrap gap-2 mb-6 text-xs text-slate-500 font-medium">
+                                ${job.salary ? `<span class="bg-green-50 dark:bg-green-900/20 text-green-600 px-2 py-1 rounded"><i class="fa-solid fa-money-bill-wave mr-1"></i> ${job.salary}</span>` : ''}
+                                <span class="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"><i class="fa-regular fa-clock mr-1"></i> ${timeAgo}</span>
+                            </div>
+                        </div>
+
+                        <a href="${job.link.includes('http') ? job.link : 'mailto:' + job.link}" target="_blank" class="w-full block text-center py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold hover:opacity-90 transition-all">
+                            Apply Now
+                        </a>
+                    </div>
+                    `;
+                    grid.insertAdjacentHTML('beforeend', card);
+                });
+
+            } catch (err) {
+                console.error(err);
+                if (document.getElementById('jobs-grid').children.length > 0) return;
+                grid.innerHTML = `<p class="text-red-500 text-center col-span-2">Failed to load jobs.</p>`;
+            }
+        }
+
+        async function createJob(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                title: form.title.value,
+                company: form.company.value,
+                type: form.type.value,
+                salary: form.salary.value,
+                description: form.description.value,
+                link: form.link.value
+            };
+
+            try {
+                await apiFetch('/api/jobs', 'POST', data);
+                showToast('Job posted successfully!');
+                document.getElementById('createJobModal').classList.add('hidden');
+                form.reset();
+                loadJobs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        document.getElementById('createJobForm').addEventListener('submit', createJob);
+        document.addEventListener('DOMContentLoaded', loadJobs);
+    </script>
+</body>
+
+</html>

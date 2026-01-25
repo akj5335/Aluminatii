@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Events | Aluminati</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+          colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="api.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+
+  <!-- Navbar injected by script.js -->
+
+  <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 fade-in">
+      <div>
+        <h1 class="text-3xl font-heading font-bold text-slate-900 dark:text-white">Upcoming Events</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Discover reunions, workshops, and networking sessions.</p>
+      </div>
+      <button onclick="document.getElementById('createEventModal').classList.remove('hidden')"
+        class="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold shadow-lg hover:bg-primary dark:hover:bg-slate-200 transition-all">
+        <i class="fa-solid fa-plus mr-2"></i> Host Event
+      </button>
+    </div>
+
+    <!-- Events Container -->
+    <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <!-- Loading Skeleton -->
+      <div class="glass-card rounded-2xl p-6 space-y-4 animate-pulse">
+        <div class="h-48 bg-slate-200 dark:bg-slate-700 rounded-xl"></div>
+        <div class="h-6 w-3/4 bg-slate-200 dark:bg-slate-700 rounded"></div>
+        <div class="h-4 w-1/2 bg-slate-200 dark:bg-slate-700 rounded"></div>
+      </div>
+    </div>
+
+    <!-- No Events State -->
+    <div id="no-events" class="hidden text-center py-20">
+      <div
+        class="w-20 h-20 bg-indigo-50 dark:bg-indigo-900/30 rounded-full flex items-center justify-center mx-auto mb-4 text-primary text-3xl">
+        <i class="fa-regular fa-calendar-xmark"></i>
+      </div>
+      <h3 class="text-xl font-bold text-slate-900 dark:text-white">No Upcoming Events</h3>
+      <p class="text-slate-500 dark:text-slate-400">Be the first to host an event for the community!</p>
+    </div>
+
+  </main>
+
+  <!-- Create Event Modal -->
+  <div id="createEventModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+    </div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all border dark:border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Host an Event</h3>
+          <button onclick="document.getElementById('createEventModal').classList.add('hidden')"
+            class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+
+        <form id="createEventForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Event Title</label>
+            <input type="text" name="title" required
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Description</label>
+            <textarea name="description" rows="3"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"></textarea>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Date & Time</label>
+              <input type="datetime-local" name="date" required
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Type</label>
+              <select name="type"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                <option value="offline">In-Person</option>
+                <option value="online">Online (Virtual)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Location / Link</label>
+            <input type="text" name="location" placeholder="Address or Zoom Link" required
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+          </div>
+
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all mt-4">Create
+            Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logic -->
+  <script src="script.js"></script>
+  <script>
+    async function loadEvents() {
+      const grid = document.getElementById('events-grid');
+      const noEvents = document.getElementById('no-events');
+
+      try {
+        const events = await apiFetch('/api/events');
+        grid.innerHTML = '';
+
+        if (!events || events.length === 0) {
+          noEvents.classList.remove('hidden');
+          return;
+        }
+
+        noEvents.classList.add('hidden');
+
+        events.forEach(event => {
+          const date = new Date(event.date);
+          const month = date.toLocaleString('default', { month: 'short' });
+          const day = date.getDate();
+          const isOnline = event.videoLink || (event.location && event.location.includes('http'));
+
+          const card = `
+                    <div class="glass-card rounded-2xl overflow-hidden border border-white/50 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-indigo-500/10 dark:hover:shadow-indigo-900/20 transition-all group dark:bg-slate-800">
+                        <div class="h-48 bg-slate-200 dark:bg-slate-700 relative overflow-hidden">
+                            <!-- Placeholder Image based on index -->
+                            <img src="https://source.unsplash.com/random/800x600?event,conference&sig=${event._id}" 
+                                 onerror="this.src='https://placehold.co/800x600/e2e8f0/475569?text=Event'"
+                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            
+                            <div class="absolute top-4 right-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur rounded-lg px-3 py-1 text-center shadow-lg">
+                                <span class="block text-xs uppercase font-bold text-primary">${month}</span>
+                                <span class="block text-xl font-bold text-slate-900 dark:text-white">${day}</span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-2 text-xs font-semibold text-primary mb-2">
+                                <span class="bg-indigo-50 dark:bg-indigo-900/30 px-2 py-1 rounded">${isOnline ? 'Virtual' : 'In-Person'}</span>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-1">${event.title}</h3>
+                            <p class="text-slate-500 dark:text-slate-400 text-sm mb-4 line-clamp-2">${event.description || 'No description provided.'}</p>
+                            
+                            <div class="text-slate-500 dark:text-slate-400 text-sm space-y-2 mb-6">
+                                <p><i class="fa-regular fa-clock w-5"></i> ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                <p><i class="fa-solid fa-location-dot w-5"></i> ${event.location || 'TBA'}</p>
+                            </div>
+                            
+                            <button onclick="rsvpEvent('${event._id}')" class="w-full py-2.5 rounded-xl border border-primary text-primary font-semibold hover:bg-primary hover:text-white transition-all">
+                                ${event.attendees && event.attendees.includes(getUser()._id) ? 'Registered' : 'Register'}
+                            </button>
+                        </div>
+                    </div>
+                    `;
+          grid.insertAdjacentHTML('beforeend', card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        if (document.getElementById('events-grid').children.length > 0) return; // don't overwrite skeleton if just empty
+        grid.innerHTML = `<p class="text-red-500 text-center col-span-3">Failed to load events.</p>`;
+      }
+    }
+
+    async function createEvent(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        title: form.title.value,
+        description: form.description.value,
+        date: form.date.value,
+        location: form.location.value
+      };
+
+      try {
+        await apiFetch('/api/events', 'POST', data);
+        showToast('Event created successfully!');
+        document.getElementById('createEventModal').classList.add('hidden');
+        form.reset();
+        loadEvents();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function rsvpEvent(id) {
+      if (!isLoggedIn()) return openModal('login');
+      try {
+        // Assuming backend has RSVP endpoint, otherwise we might see 404
+        // Step 61 showed: router.post('/:id/rsvp', auth, toggleRSVP);
+        await apiFetch(`/api/events/${id}/rsvp`, 'POST', {});
+        showToast('Registration updated');
+        loadEvents();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    document.getElementById('createEventForm').addEventListener('submit', createEvent);
+    document.addEventListener('DOMContentLoaded', loadEvents);
+  </script>
+</body>
+
+</html>
