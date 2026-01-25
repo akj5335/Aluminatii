@@ -1,246 +1,268 @@
-# Aluminati - AI-Powered Alumni Engagement Platform
+# 🎓 Aluminati - AI-Powered Alumni Network Platform
 
-## Overview
+> A comprehensive alumni networking platform that bridges the gap between students and alumni through intelligent matching, real-time communication, and community engagement.
 
-Aluminati is a comprehensive alumni management system designed to foster connections, mentorship, and professional growth among alumni, current students, and faculty. The platform leverages AI-powered features to provide intelligent matching, networking, and career insights.
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-brightgreen.svg)](https://nodejs.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4.4+-green.svg)](https://www.mongodb.com/)
 
-## Features
+## ✨ Features
 
-### Core Functionality
-- **User Authentication**: Secure registration and login with JWT tokens
-- **Profile Management**: Detailed alumni profiles with professional information
-- **Real-time Messaging**: Socket.io-powered instant messaging
-- **Event Management**: Create and manage alumni events
-- **Job Board**: Post and discover career opportunities
-- **Mentorship Program**: AI-facilitated mentor-mentee matching
-- **Posts & Content**: Share updates and engage with the community
-- **Notifications**: Stay updated on important activities
-- **Admin Panel**: Administrative controls and user management
+### 🔔 **Core Features**
+- **Real-time Notifications** - Stay updated with instant alerts for connections, jobs, and events
+- **Smart Job Matching** - AI-powered job recommendations based on skills, location, and experience
+- **Live Messaging** - Real-time chat using Socket.IO for instant communication
+- **OAuth Social Login** - One-click login with Google, GitHub, and LinkedIn
+- **Profile Management** - Comprehensive alumni profiles with photo uploads
+- **Event Management** - Discover and register for alumni events
+- **Mentorship Program** - Connect with experienced alumni for guidance
+- **Alumni Directory** - Advanced search and filtering to find peers
 
-### AI-Powered Features
-- **Smart Networking**: Automated connection suggestions
-- **Predictive Career Insights**: AI-driven career recommendations
-- **Intelligent Job Matching**: Advanced job-alumni pairing
-- **Event Discovery**: AI-curated event recommendations
-- **Adaptive Learning**: Personalized recommendations based on interactions
+### 🎯 **Smart Features**
+- **Job Recommendations** - Get personalized job matches with match scores and reasons
+- **Verification Badges** - Trusted alumni with verified status
+- **Network Analytics** - Track your connections and engagement
+- **AI Chatbot** - AlumiBot for quick assistance and navigation
 
-### Gamification
-- **Leaderboard**: Track community engagement
-- **Achievement Badges**: Unlock rewards for contributions
-- **Points System**: Earn points for various activities
-- **Challenges & Quests**: Monthly engagement challenges
+## 🛠️ Tech Stack
 
-## Technology Stack
+### **Frontend**
+- HTML5, CSS3, JavaScript (ES6+)
+- TailwindCSS for styling
+- Font Awesome icons
+- AOS (Animate on Scroll)
 
-### Backend
-- **Node.js** with **Express.js** framework
-- **MongoDB** with **Mongoose** ODM
-- **Socket.io** for real-time communication
-- **JWT** for authentication
-- **bcryptjs** for password hashing
-- **Multer** for file uploads
-- **QRCode** for generating QR codes
+### **Backend**
+- Node.js & Express.js
+- MongoDB with Mongoose ODM
+- Socket.IO for real-time features
+- JWT for authentication
+- Passport.js for OAuth
+- Multer for file uploads
+- bcrypt.js for password hashing
 
-### Frontend
-- **HTML5**, **CSS3**, **JavaScript**
-- **Tailwind CSS** for styling
-- **Google Fonts** (Poppins & Outfit)
-- Responsive design with mobile-first approach
+### **Third-Party Integrations**
+- Google OAuth 2.0
+- GitHub OAuth
+- LinkedIn OAuth
+- MongoDB Atlas
 
-### Additional Tools
-- **Nodemon** for development
-- **CORS** for cross-origin requests
-- **Dotenv** for environment variables
+## 📦 Installation
 
-## Project Structure
+### **Prerequisites**
+- Node.js (v14 or higher)
+- MongoDB (local or Atlas)
+- Git
+
+### **Setup Steps**
+
+1. **Clone the repository**
+```bash
+git clone https://github.com/YOUR_USERNAME/aluminati.git
+cd aluminati
+```
+
+2. **Install dependencies**
+```bash
+npm install
+```
+
+3. **Configure environment variables**
+Create a `.env` file in the root directory:
+```env
+MONGO_URI=mongodb://localhost:27017/aluminati
+JWT_SECRET=your-super-secret-jwt-key
+PORT=5000
+
+# Optional OAuth Credentials
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+GITHUB_CLIENT_ID=your-github-client-id
+GITHUB_CLIENT_SECRET=your-github-client-secret
+LINKEDIN_CLIENT_ID=your-linkedin-client-id
+LINKEDIN_CLIENT_SECRET=your-linkedin-client-secret
+```
+
+4. **Start MongoDB** (if using local)
+```bash
+mongod
+```
+
+5. **Run the application**
+```bash
+npm run dev
+```
+
+6. **Open your browser**
+```
+http://localhost:5000
+```
+
+## 🚀 Deployment
+
+### **Quick Deploy to Render**
+1. Push code to GitHub
+2. Sign up at [render.com](https://render.com)
+3. Create new Web Service
+4. Connect GitHub repo
+5. Add environment variables
+6. Deploy!
+
+See [DEPLOYMENT.md](docs/deployment-guide.md) for detailed instructions.
+
+## 📖 Usage
+
+### **For Students/Alumni**
+1. **Sign Up** with email or social login
+2. **Complete Profile** with skills, experience, and location
+3. **Browse Jobs** and get smart recommendations
+4. **Connect** with alumni in your field
+5. **Join Events** and mentorship programs
+6. **Message** peers in real-time
+
+### **For Administrators**
+- Manage users and verify alumni
+- Post job opportunities
+- Organize events
+- Monitor platform analytics
+
+## 🏗️ Project Structure
 
 ```
 aluminati/
 ├── backend/
-│   ├── models/          # MongoDB schemas
+│   ├── config/
+│   │   └── passport.js          # OAuth strategies
+│   ├── middleware/
+│   │   └── authMiddleware.js    # JWT verification
+│   ├── models/
 │   │   ├── User.js
 │   │   ├── Profile.js
-│   │   ├── Posts.js
-│   │   ├── Connection.js
-│   │   ├── Event.js
 │   │   ├── Job.js
+│   │   ├── Event.js
 │   │   ├── Message.js
-│   │   ├── Notification.js
-│   │   └── Content.js
-│   ├── routes/          # API routes
+│   │   └── Notification.js
+│   ├── routes/
+│   │   ├── controllers/
 │   │   ├── authRoutes.js
-│   │   ├── profile.js
-│   │   ├── postRoutes.js
-│   │   ├── connectionRoutes.js
-│   │   ├── eventRoutes.js
 │   │   ├── jobRoutes.js
 │   │   ├── messageRoutes.js
-│   │   ├── notificationRoutes.js
-│   │   ├── contentRoutes.js
-│   │   ├── adminRoutes.js
-│   │   └── controllers/  # Route controllers
-│   ├── middleware/      # Custom middleware
-│   │   ├── authMiddleware.js
-│   │   └── adminMiddleware.js
-│   ├── db.js            # Database connection
-│   ├── server.js        # Main server file
-│   └── supabaseClient.js # Supabase integration
+│   │   └── ...
+│   ├── db.js
+│   └── server.js
 ├── frontend/
-│   ├── index.html       # Landing page
-│   ├── style.css        # Custom styles
-│   ├── script.js        # Frontend logic
-│   ├── api.js           # API integration
-│   ├── posts.html
-│   ├── profile.html
-│   ├── events.html
+│   ├── index.html               # Landing page
+│   ├── dashboard.html           # User dashboard
+│   ├── messages.html            # Chat interface
 │   ├── jobs.html
-│   ├── messages.html
-│   ├── notifications.html
-│   ├── directory.html
-│   ├── mentorship.html
-│   ├── success.html
-│   ├── leaderboard.html
-│   ├── admin.html
-│   └── Employees.tsx
+│   ├── events.html
+│   ├── style.css
+│   ├── script.js                # Global JS
+│   └── api.js                   # API helper
+├── .env
+├── .gitignore
 ├── package.json
-├── TODO.md
 └── README.md
 ```
 
-## Installation & Setup
+## 🎨 Screenshots
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd aluminati
-   ```
+### Landing Page
+Beautiful gradient hero with animated particles and feature showcase.
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+### Dashboard
+Personalized dashboard with smart job recommendations, stats, and upcoming events.
 
-3. **Environment Setup**
-   Create a `.env` file in the backend directory with:
-   ```
-   MONGO_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
-   PORT=5000
-   ```
+### Real-time Chat
+Instant messaging with conversation history and online status.
 
-4. **Start the development server**
-   ```bash
-   npm run dev
-   ```
+### Smart Job Matching
+AI-powered recommendations with match scores and reasons.
 
-5. **Access the application**
-   - Frontend: Open `frontend/index.html` in your browser
-   - Backend API: `http://localhost:5000`
+## 🔐 Security Features
 
-## API Endpoints
+- ✅ JWT-based authentication
+- ✅ Password hashing with bcrypt
+- ✅ Protected API routes
+- ✅ CORS configuration
+- ✅ Environment variable protection
+- ✅ Input validation and sanitization
 
-### Authentication
+## 📊 API Endpoints
+
+### **Authentication**
 - `POST /auth/register` - User registration
 - `POST /auth/login` - User login
-- `GET /auth/me` - Get current user info
+- `GET /auth/google` - Google OAuth
+- `GET /auth/github` - GitHub OAuth
 
-### Profiles
-- `GET /profiles` - Get all profiles
-- `GET /profiles/:id` - Get specific profile
-- `PUT /profiles/:id` - Update profile
+### **Jobs**
+- `GET /api/jobs` - Get all jobs
+- `GET /api/jobs/recommended` - Get smart recommendations
+- `POST /api/jobs` - Create job posting
 
-### Events
-- `GET /api/events` - Get all events
-- `POST /api/events` - Create new event
-- `PUT /api/events/:id` - Update event
-- `DELETE /api/events/:id` - Delete event
+### **Messages**
+- `GET /api/messages/conversations` - Get chat list
+- `GET /api/messages/:userId` - Get messages with user
+- `POST /api/messages` - Send message
 
-### Posts
-- `GET /posts` - Get all posts
-- `POST /posts` - Create new post
-- `PUT /posts/:id` - Update post
-- `DELETE /posts/:id` - Delete post
+### **Notifications**
+- `GET /api/notifications` - Get user notifications
+- `PATCH /api/notifications/:id/read` - Mark as read
 
-### Connections
-- `GET /connections` - Get user connections
-- `POST /connections` - Send connection request
-- `PUT /connections/:id` - Accept/reject connection
+*Full API documentation coming soon*
 
-### Jobs
-- `GET /jobs` - Get all job postings
-- `POST /jobs` - Create job posting
-- `PUT /jobs/:id` - Update job posting
-- `DELETE /jobs/:id` - Delete job posting
+## 🤝 Contributing
 
-### Messages
-- `GET /messages` - Get user messages
-- `POST /messages` - Send message
-
-### Notifications
-- `GET /notifications` - Get user notifications
-- `PUT /notifications/:id` - Mark as read
-
-## Database Models
-
-### User
-- name, email, password
-- Timestamps
-
-### Profile
-- user (reference), collegeId, branch, gender
-- contact, graduationYear, degree, company, designation
-- location, socialLinks, achievements, bio, photoURL
-- isPublic, updatedAt
-
-### Event
-- title, description, date, location
-- organizer, attendees, category
-- Timestamps
-
-### Job
-- title, company, description, requirements
-- salary, location, type, postedBy
-- Timestamps
-
-### Post
-- content, author, likes, comments
-- Timestamps
-
-### Message
-- sender, receiver, content
-- Timestamps
-
-### Notification
-- user, type, message, isRead
-- Timestamps
-
-## Frontend Features
-
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Dark/Light Mode**: Theme toggle functionality
-- **Animations**: Scroll-triggered fade-ins and hover effects
-- **AI Chatbot**: Interactive AI assistant bubble
-- **Particle Background**: Animated background effects
-- **Glassmorphism**: Modern UI with glass-like elements
-- **Testimonials Carousel**: Dynamic testimonial display
-- **Gamification UI**: Leaderboard and badge animations
-
-## Contributing
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## License
+## 🐛 Known Issues
 
-This project is licensed under the ISC License.
+- File uploads are temporary on free hosting tiers
+- OAuth requires setup of developer credentials
+- Real-time features need WebSocket support
 
-## Contact
+## 📝 Future Enhancements
 
-For questions or support, please contact the development team.
+- [ ] Verification badge system
+- [ ] Advanced analytics dashboard
+- [ ] Mobile app (React Native)
+- [ ] Video conferencing integration
+- [ ] AI-powered resume builder
+- [ ] Donation/fundraising module
+- [ ] Advanced search filters
+- [ ] Email notifications
+- [ ] Dark mode enhancements
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Authors
+
+- **Ajay Gadiya** - [GitHub](https://github.com/YOUR_USERNAME)
+
+## 🙏 Acknowledgments
+
+- TailwindCSS for the amazing utility-first CSS framework
+- Socket.IO for real-time communication
+- MongoDB team for the excellent database
+- Open source community
+
+## 📞 Support
+
+For support, email support@aluminati.com or join our Slack channel.
 
 ---
 
-**Note**: This README is based on the current state of the codebase as analyzed from the provided files. Some features may be in development or require additional setup.
+<div align="center">
+Made with ❤️ by Ajay Gadiya
+
+⭐ Star this repo if you found it helpful!
+</div>
