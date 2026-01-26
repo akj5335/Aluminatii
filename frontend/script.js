@@ -1,7 +1,7 @@
 /* --- Global State & Utilities --- */
 
 // API Base URL (Should match backend port)
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = '';
 
 // Theme Management
 function initTheme() {

@@ -1,9 +1,9 @@
-const API_BASE = 'http://localhost:5000'; // backend API base URL
+const API_BASE = ''; // Use relative path for production
 
 function getToken() { return localStorage.getItem('token'); }
 function setToken(t) { if (t) localStorage.setItem('token', t); else localStorage.removeItem('token'); }
 
-async function apiFetch(path, method='GET', body=null) {
+async function apiFetch(path, method = 'GET', body = null) {
   const headers = {};
   if (!(body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
@@ -16,7 +16,7 @@ async function apiFetch(path, method='GET', body=null) {
     body: body instanceof FormData ? body : (body ? JSON.stringify(body) : undefined)
   });
   const text = await res.text();
-  try { return JSON.parse(text); } catch(e){ return text; }
+  try { return JSON.parse(text); } catch (e) { return text; }
 }
 
 // Socket.io connection
