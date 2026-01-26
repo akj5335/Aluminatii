@@ -823,23 +823,25 @@
             // Default Fallback
             return "I'm listening! While I'm still learning, I can help you with:\n\n• 🏢 <b>Finding Jobs</b>\n• 🤝 <b>Connecting with Mentors</b>\n• 📅 <b>Upcoming Events</b>\n• 🔍 <b>Searching the Directory</b>\n\nWhat would you like to explore?";
         }
-        <!-- OAuth Callback Handler -->
-        <script>
-        // Handle OAuth callback with token
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            const userParam = urlParams.get('user');
+    </script>
 
-            if (token && userParam) {
+    <!-- OAuth Callback Handler -->
+    <script>
+        // Handle OAuth callback with token
+        const urlParams = new URLSearchParams(window.location.search);
+        const token = urlParams.get('token');
+        const userParam = urlParams.get('user');
+
+        if (token && userParam) {
             try {
                 const user = JSON.parse(decodeURIComponent(userParam));
-            localStorage.setItem('token', token);
-            localStorage.setItem('user', JSON.stringify(user));
-            showToast(`Welcome ${user.name}!`);
+                localStorage.setItem('token', token);
+                localStorage.setItem('user', JSON.stringify(user));
+                showToast(`Welcome ${user.name}!`);
                 setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                    window.location.href = 'dashboard.html';
                 }, 1000);
-            } catch(e) {
+            } catch (e) {
                 showToast('OAuth login successful, redirecting...', 'success');
                 setTimeout(() => window.location.href = 'dashboard.html', 1000);
             }
