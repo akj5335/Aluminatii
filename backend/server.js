@@ -101,7 +101,9 @@ app.get("/", (req, res) => {
 connectDB();
 
 // ===== Start Server =====
-const PORT = 5001;
-httpServer.listen(PORT, () =>
-  console.log(`🚀 Server running on http://localhost:${PORT}`)
-);
+const PORT = process.env.PORT || 5000;
+httpServer.listen(PORT, '0.0.0.0', () =>
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`)
+).on('error', (err) => {
+  console.error('❌ Server failed to start:', err);
+});

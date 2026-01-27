@@ -88,7 +88,14 @@
         const currentUser = getUser();
 
         // Initialize Socket.IO
-        socket = io('http://localhost:5000');
+        // Use the global socket from api.js if available, otherwise initialize it here
+        if (!window.socket || window.socket.disconnected) {
+            socket = io(); // Connects to the host that served the page
+            window.socket = socket;
+        } else {
+            socket = window.socket;
+        }
+
         socket.emit('user_online', currentUser.id);
 
         // Listen for incoming messages
