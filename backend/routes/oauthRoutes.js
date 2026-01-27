@@ -8,12 +8,12 @@ const router = express.Router();
 router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/google/callback',
-    passport.authenticate('google', { session: false, failureRedirect: '/frontend/index.html' }),
+    passport.authenticate('google', { session: false, failureRedirect: '/index.html' }),
     (req, res) => {
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
         // Redirect to frontend with token
-        res.redirect(`/frontend/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
+        res.redirect(`/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
             id: req.user._id,
             name: req.user.name,
             email: req.user.email,
@@ -26,11 +26,11 @@ router.get('/google/callback',
 router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
 
 router.get('/github/callback',
-    passport.authenticate('github', { session: false, failureRedirect: '/frontend/index.html' }),
+    passport.authenticate('github', { session: false, failureRedirect: '/index.html' }),
     (req, res) => {
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        res.redirect(`/frontend/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
+        res.redirect(`/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
             id: req.user._id,
             name: req.user.name,
             email: req.user.email,
@@ -43,11 +43,11 @@ router.get('/github/callback',
 router.get('/linkedin', passport.authenticate('linkedin', { scope: ['r_emailaddress', 'r_liteprofile'] }));
 
 router.get('/linkedin/callback',
-    passport.authenticate('linkedin', { session: false, failureRedirect: '/frontend/index.html' }),
+    passport.authenticate('linkedin', { session: false, failureRedirect: '/index.html' }),
     (req, res) => {
         const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
-        res.redirect(`/frontend/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
+        res.redirect(`/index.html?token=${token}&user=${encodeURIComponent(JSON.stringify({
             id: req.user._id,
             name: req.user.name,
             email: req.user.email,
