@@ -5,7 +5,13 @@ import jwt from 'jsonwebtoken';
 const router = express.Router();
 
 // Google OAuth
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/google', (req, res, next) => {
+    if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_ID.startsWith('your') && !process.env.GOOGLE_CLIENT_ID) {
+        // This is a basic check to see if the user has replaced the placeholder
+        return res.status(500).send('Google OAuth is not configured. Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file.');
+    }
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
 
 router.get('/google/callback',
     passport.authenticate('google', { session: false, failureRedirect: '/index.html' }),
@@ -23,7 +29,12 @@ router.get('/google/callback',
 );
 
 // GitHub OAuth
-router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+router.get('/github', (req, res, next) => {
+    if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_ID.startsWith('your') && !process.env.GITHUB_CLIENT_ID) {
+        return res.status(500).send('GitHub OAuth is not configured. Please add GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET to your .env file.');
+    }
+    passport.authenticate('github', { scope: ['user:email'] })(req, res, next);
+});
 
 router.get('/github/callback',
     passport.authenticate('github', { session: false, failureRedirect: '/index.html' }),
@@ -40,7 +51,12 @@ router.get('/github/callback',
 );
 
 // LinkedIn OAuth
-router.get('/linkedin', passport.authenticate('linkedin', { scope: ['r_emailaddress', 'r_liteprofile'] }));
+router.get('/linkedin', (req, res, next) => {
+    if (!process.env.LINKEDIN_CLIENT_ID || !process.env.LINKEDIN_CLIENT_ID.startsWith('your') && !process.env.LINKEDIN_CLIENT_ID) {
+        return res.status(500).send('LinkedIn OAuth is not configured. Please add LINKEDIN_CLIENT_ID and LINKEDIN_CLIENT_SECRET to your .env file.');
+    }
+    passport.authenticate('linkedin', { scope: ['r_emailaddress', 'r_liteprofile'] })(req, res, next);
+});
 
 router.get('/linkedin/callback',
     passport.authenticate('linkedin', { session: false, failureRedirect: '/index.html' }),
