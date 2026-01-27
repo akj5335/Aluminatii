@@ -16,10 +16,7 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        // Auto-redirect if logged in
-        if (localStorage.getItem('token')) {
-            window.location.href = 'dashboard.html';
-        }
+        // Auto-redirect removed to allow viewing landing page even when logged in
 
         tailwind.config = {
             darkMode: 'class',
