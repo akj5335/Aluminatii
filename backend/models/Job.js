@@ -7,7 +7,7 @@ const jobSchema = new mongoose.Schema({
     requirements: [String],
     location: String,
     salary: String,
-    type: { type: String, enum: ['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance'], default: 'Full-time' },
+    type: { type: String, enum: ['Full-time', 'Part-time', 'Internship', 'Contract', 'Freelance', 'Remote'], default: 'Full-time' },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     link: String,
     createdAt: { type: Date, default: Date.now }

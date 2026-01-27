@@ -3,7 +3,26 @@ import Profile from '../../models/Profile.js';
 
 export const getJobs = async (req, res) => {
     try {
-        const jobs = await Job.find().sort({ createdAt: -1 }).populate('postedBy', 'name photoURL');
+        const { search, type, location } = req.query;
+        let query = {};
+
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { company: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        if (type && type !== 'All') {
+            query.type = type;
+        }
+
+        if (location) {
+            query.location = { $regex: location, $options: 'i' };
+        }
+
+        const jobs = await Job.find(query).sort({ createdAt: -1 }).populate('postedBy', 'name photoURL');
         res.json(jobs);
     } catch (error) {
         res.status(500).json({ message: error.message });
