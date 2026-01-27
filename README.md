@@ -246,6 +246,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
+- **Akshay Jain** - Founder & Lead Developer
 - **Ajay Gadiya** - [GitHub](https://github.com/YOUR_USERNAME)
 
 ## 🙏 Acknowledgments
@@ -262,7 +263,7 @@ For support, email support@aluminati.com or join our Slack channel.
 ---
 
 <div align="center">
-Made with ❤️ by Ajay Gadiya
+Made with ❤️ by Akshay Jain & Ajay Gadiya
 
 ⭐ Star this repo if you found it helpful!
 </div>
