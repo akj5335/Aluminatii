@@ -69,6 +69,13 @@
             class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-blue-400 hover:text-white transition-colors"><i
               class="fa-brands fa-twitter"></i></a>
         </div>
+
+        <!-- Badges -->
+        <div id="sidebarBadges"
+          class="flex flex-wrap justify-center gap-2 mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+          <!-- Dynamic Badges -->
+        </div>
+
       </div>
 
       <!-- Navigation Links -->
@@ -132,8 +139,15 @@
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Location</label>
-              <input type="text" id="location" name="location"
-                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+              <div class="flex gap-2">
+                <input type="text" id="location" name="location"
+                  class="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all">
+                <button type="button" onclick="detectLocation()"
+                  class="px-4 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-xl hover:bg-indigo-100 transition-colors"
+                  title="Use My Current Location">
+                  <i class="fa-solid fa-location-crosshairs"></i>
+                </button>
+              </div>
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Graduation Year</label>
@@ -146,6 +160,20 @@
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Bio</label>
             <textarea id="bio" name="bio" rows="4"
               class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none transition-all"></textarea>
+          </div>
+
+          <!-- Skills Section -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Skills</label>
+            <div class="flex flex-wrap gap-2 mb-3" id="skillsList">
+              <!-- Dynamic Skills -->
+            </div>
+            <div class="flex gap-2">
+              <input type="text" id="newSkill" placeholder="Add a skill (e.g. JavaScript)"
+                class="flex-1 px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+              <button type="button" onclick="addSkill()"
+                class="px-4 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-xl font-medium hover:opacity-90 transition-all">Add</button>
+            </div>
           </div>
         </form>
       </div>
@@ -205,6 +233,21 @@
         document.getElementById('sidebarRole').textContent = profile.designation ? `${profile.designation} at ${profile.company}` : (user.role || 'Alumni');
         if (user.photoURL) document.getElementById('sidebarAvatar').src = user.photoURL;
 
+        // Render Badges
+        const badgeContainer = document.getElementById('sidebarBadges');
+        badgeContainer.innerHTML = '';
+        if (profile.badges && profile.badges.length > 0) {
+          profile.badges.forEach(badge => {
+            const el = document.createElement('div');
+            el.className = 'w-8 h-8 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-sm relative group cursor-help';
+            el.innerHTML = `
+                    <i class="${badge.icon}"></i>
+                    <span class="absolute bottom-full mb-2 hidden group-hover:block bg-slate-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">${badge.name}</span>
+                `;
+            badgeContainer.appendChild(el);
+          });
+        }
+
         // Form
         document.getElementById('name').value = user.name || '';
         document.getElementById('email').value = user.email || '';
@@ -214,11 +257,73 @@
         document.getElementById('graduationYear').value = profile.graduationYear || '';
         document.getElementById('bio').value = profile.bio || '';
 
+        // Render Skills
+        const skillsContainer = document.getElementById('skillsList');
+        skillsContainer.innerHTML = '';
+        if (profile.skills && profile.skills.length > 0) {
+          profile.skills.forEach(skill => {
+            const skillName = typeof skill === 'string' ? skill : skill.name;
+            const endorsements = (typeof skill === 'object' && skill.endorsements) ? skill.endorsements.length : 0;
+
+            const chip = document.createElement('div');
+            chip.className = 'px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-sm font-medium border border-indigo-100 dark:border-indigo-800 flex items-center gap-2';
+            chip.innerHTML = `
+                    ${skillName}
+                    ${endorsements > 0 ? `<span class="bg-indigo-200 dark:bg-indigo-700 text-indigo-800 dark:text-indigo-200 text-xs px-1.5 rounded-full">${endorsements}</span>` : ''}
+                    <button type="button" onclick="removeSkill('${skillName}')" class="hover:text-red-500 ml-1"><i class="fa-solid fa-xmark"></i></button>
+                `;
+            skillsContainer.appendChild(chip);
+          });
+        }
+
       } catch (err) {
         console.error(err);
         showToast('Failed to load profile', 'error');
       }
     });
+
+    async function addSkill() {
+      const input = document.getElementById('newSkill');
+      const skillName = input.value.trim();
+      if (!skillName) return;
+
+      try {
+        const res = await apiFetch('/profiles/skills', 'POST', { skillName });
+        window.location.reload(); // Simple reload to refresh skills
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function removeSkill(name) {
+      if (!confirm('Delete this skill?')) return;
+      try {
+        await apiFetch(`/profiles/skills/${encodeURIComponent(name)}`, 'DELETE');
+        window.location.reload();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    let currentCoordinates = null;
+
+    function detectLocation() {
+      if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser', 'error');
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(async (position) => {
+        currentCoordinates = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        };
+        // Ideally reverse geocode here to fill text input, but for now just saving coords
+        document.getElementById('location').value = "Current Location (Coordinates Saved)";
+        showToast('Location detected!');
+      }, () => {
+        showToast('Unable to retrieve your location', 'error');
+      });
+    }
 
     // Handle Profile Update
     document.getElementById('profileForm').addEventListener('submit', async (e) => {
@@ -228,15 +333,14 @@
         designation: document.getElementById('designation').value,
         location: document.getElementById('location').value,
         graduationYear: document.getElementById('graduationYear').value,
-        bio: document.getElementById('bio').value
+        bio: document.getElementById('bio').value,
       };
 
+      if (currentCoordinates) {
+        data.coordinates = currentCoordinates;
+      }
+
       try {
-        // Determine if create or update needed. 
-        // We'll try POST /profiles first as per original logic, 
-        // assuming backend handles upsert or we just use POST for create/update loosely for now.
-        // NOTE: Best practice is PUT for update, but I'll stick to what was likely working or standard.
-        // Let's assume POST is safe.
         const user = JSON.parse(localStorage.getItem('user'));
         await apiFetch('/profiles', 'POST', { ...data, userId: user.id });
         showToast('Profile updated successfully!');

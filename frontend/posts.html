@@ -45,10 +45,24 @@
           <form id="createPostForm">
             <textarea id="postContent" placeholder="Share your achievements, questions, or updates..." rows="2"
               class="w-full bg-transparent border-none outline-none text-lg placeholder-slate-400 dark:placeholder-slate-500 resize-none"></textarea>
+
+            <!-- Image Preview -->
+            <div id="imagePreview"
+              class="hidden relative mt-2 w-full h-48 bg-slate-100 dark:bg-slate-700 rounded-lg overflow-hidden group">
+              <img id="previewImg" class="w-full h-full object-cover">
+              <button type="button" onclick="removeImage()"
+                class="absolute top-2 right-2 bg-black/50 text-white rounded-full p-1 w-8 h-8 flex items-center justify-center hover:bg-black/70 transition-all">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
             <div class="flex justify-between items-center mt-4 pt-4 border-t border-slate-100 dark:border-slate-700">
               <div class="flex gap-2 text-slate-400">
-                <button type="button" class="hover:text-primary transition-colors"><i
-                    class="fa-regular fa-image text-lg"></i></button>
+                <input type="file" id="imageInput" accept="image/*" class="hidden" onchange="previewImage(this)">
+                <button type="button" onclick="document.getElementById('imageInput').click()"
+                  class="hover:text-primary transition-colors" title="Add Image">
+                  <i class="fa-regular fa-image text-lg"></i>
+                </button>
                 <button type="button" class="hover:text-primary transition-colors"><i
                     class="fa-solid fa-link text-lg"></i></button>
               </div>
@@ -122,8 +136,14 @@
                             <button class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"><i class="fa-solid fa-ellipsis"></i></button>
                         </div>
                         
-                        <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed mb-6">${post.content}</p>
+                        <p class="text-slate-700 dark:text-slate-300 whitespace-pre-line leading-relaxed mb-4">${post.content}</p>
                         
+                        ${post.image ? `
+                            <div class="mb-6 rounded-xl overflow-hidden shadow-sm border border-slate-100 dark:border-slate-700">
+                                <img src="${post.image}" class="w-full h-auto max-h-96 object-cover bg-slate-50 dark:bg-slate-900">
+                            </div>
+                        ` : ''}
+
                         <div class="flex items-center gap-6 pt-4 border-t border-slate-100 dark:border-slate-700 text-slate-500">
                             <button class="flex items-center gap-2 hover:text-accent transition-colors">
                                 <i class="fa-regular fa-heart"></i> ${post.likes ? post.likes.length : 0}
@@ -148,14 +168,48 @@
       }
     }
 
+    let selectedImage = null;
+
+    function previewImage(input) {
+      if (input.files && input.files[0]) {
+        selectedImage = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById('previewImg').src = e.target.result;
+          document.getElementById('imagePreview').classList.remove('hidden');
+        }
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    function removeImage() {
+      selectedImage = null;
+      document.getElementById('imageInput').value = '';
+      document.getElementById('imagePreview').classList.add('hidden');
+    }
+
     document.getElementById('createPostForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const content = document.getElementById('postContent').value.trim();
-      if (!content) return;
+
+      if (!content && !selectedImage) {
+        showToast('Please add some content or an image');
+        return;
+      }
 
       try {
-        await apiFetch('/api/posts', 'POST', { content });
+        let imageUrl = null;
+        if (selectedImage) {
+          const formData = new FormData();
+          formData.append('image', selectedImage);
+          const uploadRes = await apiFetch('/api/upload/image', 'POST', formData); // Use uploadRoutes
+          imageUrl = uploadRes.url;
+        }
+
+        await apiFetch('/api/posts', 'POST', { content, image: imageUrl });
+
         document.getElementById('postContent').value = '';
+        removeImage();
         showToast('Post published!');
         loadPosts(); // Reload feed
       } catch (err) {

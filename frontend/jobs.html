@@ -42,10 +42,16 @@
                 <h1 class="text-3xl font-heading font-bold text-slate-900 dark:text-white">Job Board</h1>
                 <p class="text-slate-500 dark:text-slate-400 mt-1">Exclusive opportunities from our alumni network.</p>
             </div>
-            <button onclick="document.getElementById('createJobModal').classList.remove('hidden')"
-                class="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold shadow-lg hover:bg-primary dark:hover:bg-slate-200 transition-all">
-                <i class="fa-solid fa-plus mr-2"></i> Post a Job
-            </button>
+            <div class="flex gap-2">
+                <button onclick="openMyApplications()"
+                    class="px-6 py-2.5 rounded-full border border-slate-900 dark:border-white text-slate-900 dark:text-white font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all">
+                    My Applications
+                </button>
+                <button onclick="document.getElementById('createJobModal').classList.remove('hidden')"
+                    class="px-6 py-2.5 rounded-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold shadow-lg hover:bg-primary dark:hover:bg-slate-200 transition-all">
+                    <i class="fa-solid fa-plus mr-2"></i> Post a Job
+                </button>
+            </div>
         </div>
 
         <!-- Search & Filters -->
@@ -165,6 +171,66 @@
         </div>
     </div>
 
+    <!-- Application Modal -->
+    <div id="applicationModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+        </div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all border dark:border-slate-700">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Apply for Job</h3>
+                    <button onclick="document.getElementById('applicationModal').classList.add('hidden')"
+                        class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <form id="applicationForm" class="space-y-4">
+                    <input type="hidden" name="jobId" id="appJobId">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Resume
+                            Link</label>
+                        <input type="text" name="resume"
+                            placeholder="Link to your resume (Google Drive, LinkedIn, etc.)" required
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cover
+                            Letter</label>
+                        <textarea name="coverLetter" rows="4" placeholder="Why are you a good fit?"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"></textarea>
+                    </div>
+                    <button type="submit"
+                        class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all mt-4">
+                        Submit Application
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Applications Modal -->
+    <div id="myApplicationsModal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+        </div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-2xl p-8 transform transition-all border dark:border-slate-700 max-h-[80vh] overflow-hidden flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-slate-900 dark:text-white">My Applications</h3>
+                    <button onclick="document.getElementById('myApplicationsModal').classList.add('hidden')"
+                        class="text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+                <div id="my-applications-list" class="overflow-y-auto pr-2 space-y-4 flex-1">
+                    <!-- Loaded dynamically -->
+                    <div class="text-center py-10 text-slate-500">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="script.js"></script>
     <script>
         async function loadJobs() {
@@ -223,9 +289,16 @@
                             </div>
                         </div>
 
-                        <a href="${job.link.includes('http') ? job.link : 'mailto:' + job.link}" target="_blank" class="w-full block text-center py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold hover:opacity-90 transition-all">
-                            Apply Now
-                        </a>
+                        <div class="flex gap-2">
+                           ${!job.link.includes('http') && !job.link.includes('@') ? `
+                                <button onclick="openApplyModal('${job._id}')" class="flex-1 py-2.5 rounded-xl border border-primary text-primary font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-all">
+                                    Apply Internal
+                                </button>
+                           ` : ''}
+                            <a href="${job.link.includes('http') ? job.link : 'mailto:' + job.link}" target="_blank" class="flex-1 block text-center py-2.5 rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 text-white font-semibold hover:opacity-90 transition-all">
+                                ${job.link.includes('@') ? 'Email' : 'External Link'}
+                            </a>
+                        </div>
                     </div>
                     `;
                     grid.insertAdjacentHTML('beforeend', card);

@@ -9,6 +9,7 @@ const commentSchema = new mongoose.Schema({
 const postSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   content: { type: String, required: true },
+  image: { type: String }, // URL to image
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   comments: [commentSchema],
   createdAt: { type: Date, default: Date.now }

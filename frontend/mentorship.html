@@ -36,10 +36,16 @@
 
   <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
 
-    <div class="text-center max-w-2xl mx-auto mb-16 fade-in">
-      <h1 class="text-4xl font-heading font-bold text-slate-900 dark:text-white mb-4">Find Your Mentor</h1>
-      <p class="text-lg text-slate-500 dark:text-slate-400">Connect with experienced alumni who can guide you through
-        your career journey. Learning never stops.</p>
+    <div class="flex justify-between items-center max-w-2xl mx-auto mb-16 fade-in">
+      <div class="flex-1 text-center">
+        <h1 class="text-4xl font-heading font-bold text-slate-900 dark:text-white mb-4">Find Your Mentor</h1>
+        <p class="text-lg text-slate-500 dark:text-slate-400">Connect with experienced alumni who can guide you through
+          your career journey.</p>
+      </div>
+      <button onclick="openSessionsModal()"
+        class="px-6 py-2.5 ml-4 rounded-full border border-slate-900 dark:border-white text-slate-900 dark:text-white font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+        My Sessions
+      </button>
     </div>
 
     <div id="mentors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -52,6 +58,78 @@
     </div>
 
   </main>
+
+  <!-- Booking Modal -->
+  <div id="bookingModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+    </div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg p-8 transform transition-all border dark:border-slate-700">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">Request Mentorship Session</h3>
+          <button onclick="document.getElementById('bookingModal').classList.add('hidden')"
+            class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+        <form id="bookingForm" class="space-y-4">
+          <input type="hidden" name="mentorId" id="bookMentorId">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Proposed Date &
+              Time</label>
+            <input type="datetime-local" name="date" required
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Duration (Minutes)</label>
+            <select name="duration"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+              <option value="30">30 Minutes</option>
+              <option value="45">45 Minutes</option>
+              <option value="60">1 Hour</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Topic</label>
+            <input type="text" name="topic" placeholder="e.g. Resume Review, Career Advice" required
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Brief Note</label>
+            <textarea name="note" rows="3" placeholder="What specifically would you like to discuss?"
+              class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"></textarea>
+          </div>
+          <button type="submit"
+            class="w-full py-3 rounded-xl bg-primary text-white font-bold shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all mt-4">
+            Send Request
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- My Sessions Modal -->
+  <div id="sessionsModal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+    </div>
+    <div class="relative flex items-center justify-center min-h-screen p-4">
+      <div
+        class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-3xl p-8 transform transition-all border dark:border-slate-700 max-h-[80vh] overflow-hidden flex flex-col">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-bold text-slate-900 dark:text-white">My Mentorship Sessions</h3>
+          <button onclick="document.getElementById('sessionsModal').classList.add('hidden')"
+            class="text-slate-400 hover:text-slate-600">
+            <i class="fa-solid fa-xmark text-xl"></i>
+          </button>
+        </div>
+        <div id="sessions-list" class="overflow-y-auto pr-2 space-y-4 flex-1">
+          <!-- Dynamic Content -->
+          <div class="text-center py-10 text-slate-500">Loading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
   <script>
@@ -110,9 +188,119 @@
     }
 
     async function requestMentorship(id) {
+      if (!isLoggedIn()) return openModal('login');
+      document.getElementById('bookMentorId').value = id;
+      document.getElementById('bookingModal').classList.remove('hidden');
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = {
+        mentorId: e.target.mentorId.value,
+        date: e.target.date.value,
+        duration: e.target.duration.value,
+        topic: e.target.topic.value,
+        note: e.target.note.value
+      };
+
       try {
-        await apiFetch('/api/mentorship/request', 'POST', { mentorId: id });
-        showToast('Request sent successfully!');
+        await apiFetch('/api/mentorship/session/request', 'POST', data);
+        showToast('Session requested successfully!');
+        document.getElementById('bookingModal').classList.add('hidden');
+        e.target.reset();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    async function openSessionsModal() {
+      if (!isLoggedIn()) return openModal('login');
+      document.getElementById('sessionsModal').classList.remove('hidden');
+      loadSessions();
+    }
+
+    async function loadSessions() {
+      const list = document.getElementById('sessions-list');
+      list.innerHTML = '<div class="text-center py-10 text-slate-500">Loading...</div>';
+
+      try {
+        const sessions = await apiFetch('/api/mentorship/sessions');
+        list.innerHTML = '';
+
+        if (!sessions || sessions.length === 0) {
+          list.innerHTML = '<div class="text-center py-10 text-slate-500">No sessions found.</div>';
+          return;
+        }
+
+        const currentUser = getUser();
+
+        sessions.forEach(session => {
+          const isMentor = session.mentor._id === currentUser._id;
+          const otherUser = isMentor ? session.mentee : session.mentor;
+          const statusColors = {
+            'Pending': 'bg-yellow-100 text-yellow-700',
+            'Accepted': 'bg-green-100 text-green-700',
+            'Rejected': 'bg-red-100 text-red-700',
+            'Completed': 'bg-slate-100 text-slate-700'
+          };
+
+          const item = `
+                    <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between gap-4">
+                        <div class="flex gap-4">
+                            <img src="${otherUser.photoURL || 'https://ui-avatars.com/api/?name=User'}" class="w-12 h-12 rounded-full object-cover">
+                            <div>
+                                <h4 class="font-bold text-slate-900 dark:text-white">${session.topic}</h4>
+                                <p class="text-sm text-slate-500">with ${otherUser.name} • ${new Date(session.date).toLocaleString()} (${session.duration} min)</p>
+                                <div class="mt-2 text-sm text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 p-2 rounded border border-slate-100 dark:border-slate-700">
+                                    "${session.note || 'No notes'}"
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                             <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColors[session.status] || 'bg-gray-100'}">${session.status}</span>
+                             
+                             ${session.status === 'Pending' && isMentor ? `
+                                <div class="flex gap-2 mt-2">
+                                    <button onclick="updateStatus('${session._id}', 'Accepted')" class="px-3 py-1.5 bg-green-500 text-white rounded-lg text-xs hover:bg-green-600 transition-all">Accept</button>
+                                    <button onclick="updateStatus('${session._id}', 'Rejected')" class="px-3 py-1.5 bg-red-500 text-white rounded-lg text-xs hover:bg-red-600 transition-all">Reject</button>
+                                </div>
+                             ` : ''}
+
+                             ${session.status === 'Accepted' && (session.meetingLink || isMentor) ? `
+                                ${isMentor ? `
+                                    <button onclick="addLink('${session._id}')" class="text-xs text-primary underline">Add/Update Link</button>
+                                ` : ''}
+                                ${session.meetingLink ? `<a href="${session.meetingLink}" target="_blank" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-indigo-600 transition-all"><i class="fa-solid fa-video mr-2"></i> Join Meeting</a>` : ''}
+                             ` : ''}
+                        </div>
+                    </div>
+                `;
+          list.insertAdjacentHTML('beforeend', item);
+        });
+
+      } catch (err) {
+        console.error(err);
+        list.innerHTML = `<p class="text-red-500 text-center">Failed to load sessions.</p>`;
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { status });
+        showToast(`Session ${status.toLowerCase()}`);
+        loadSessions();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function addLink(id) {
+      const link = prompt("Enter meeting link (Zoom/Google Meet):");
+      if (!link) return;
+      try {
+        await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { meetingLink: link });
+        showToast('Meeting link updated');
+        loadSessions();
       } catch (err) {
         showToast(err.message, 'error');
       }

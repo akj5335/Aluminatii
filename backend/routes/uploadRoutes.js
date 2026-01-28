@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import { uploadProfilePhoto } from './controllers/uploadController.js';
+import { uploadProfilePhoto, uploadImage } from './controllers/uploadController.js';
 import auth from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -34,5 +34,11 @@ const upload = multer({
 });
 
 router.post('/photo', auth, upload.single('photo'), uploadProfilePhoto);
+router.post('/image', auth, upload.single('image'), uploadImage); // Generic image upload
+router.get('/image/:filename', (req, res) => {
+    // Optional: Serve images if not served statically from server.js
+    // For now, assuming static serve in server.js, but let's keep it clean.
+    // Actually, generic static serve is better.
+});
 
 export default router;

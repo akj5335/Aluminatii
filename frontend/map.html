@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Map | Aluminati</title>
+    <!-- Fonts & CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#06B6D4', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRSq550=" crossorigin="" />
+
+    <script src="api.js"></script>
+    <script src="script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
+
+<body class="bg-indigo-50/50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased flex flex-col h-screen">
+
+    <!-- Navbar injected by script.js -->
+
+    <div class="flex-1 pt-24 pb-4 px-4 flex flex-col max-w-7xl mx-auto w-full">
+        <h1 class="text-3xl font-bold mb-4">Alumni Near Me</h1>
+        <p class="mb-4 text-slate-500">Find alumni in your city or anywhere in the world.</p>
+
+        <div id="map" class="flex-1 w-full rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 z-0">
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const map = L.map('map').setView([20, 0], 2); // Global view
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            try {
+                const res = await apiFetch('/profiles');
+                const profiles = res.profiles || [];
+
+                profiles.forEach(profile => {
+                    if (profile.coordinates && profile.coordinates.lat) {
+                        const marker = L.marker([profile.coordinates.lat, profile.coordinates.lng]).addTo(map);
+
+                        const popupContent = `
+                            <div class="p-2 text-center min-w-[200px]">
+                                <img src="${profile.photoURL || profile.user.photoURL || 'https://ui-avatars.com/api/?name=' + profile.user.name}" class="w-12 h-12 rounded-full mx-auto mb-2 object-cover">
+                                <h3 class="font-bold text-lg">${profile.user.name}</h3>
+                                <p class="text-sm text-slate-500 mb-2">${profile.designation || 'Alumni'} at ${profile.company || 'N/A'}</p>
+                                <a href="profile.html?id=${profile.user._id}" class="text-primary font-medium hover:underline">View Profile</a>
+                            </div>
+                        `;
+                        marker.bindPopup(popupContent);
+                    }
+                });
+
+            } catch (err) {
+                console.error("Failed to load map data", err);
+                showToast("Failed to load alumni locations", 'error');
+            }
+        });
+    </script>
+</body>
+
+</html>

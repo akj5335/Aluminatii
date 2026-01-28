@@ -47,3 +47,58 @@ export const getConnections = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const getRecommendations = async (req, res) => {
+  try {
+    const Profile = (await import('../../models/Profile.js')).default;
+    const myProfile = await Profile.findOne({ user: req.user._id });
+
+    if (!myProfile) return res.json([]);
+
+    // Fetch potential matches (not me)
+    let candidates = await Profile.find({ user: { $ne: req.user._id } }).populate('user', 'name photoURL');
+
+    // Filter out existing connections (TODO for later: check Connection model)
+    // For now, just score everyone.
+
+    const scored = candidates.map(p => {
+      let score = 0;
+      let reasons = [];
+
+      // Ensure user exists (in case of orphan profile)
+      if (!p.user) return null;
+
+      // 1. Company Match (+5)
+      if (myProfile.company && p.company && myProfile.company.toLowerCase() === p.company.toLowerCase()) {
+        score += 5;
+        reasons.push(`Works at ${p.company}`);
+      }
+
+      // 2. Batch Match (+3)
+      if (myProfile.batchYear && p.batchYear && myProfile.batchYear === p.batchYear) {
+        score += 3;
+        reasons.push(`Class of ${p.batchYear}`);
+      }
+
+      // 3. Shared Skills (+2 each)
+      if (myProfile.skills && p.skills) {
+        const shared = p.skills.filter(s => myProfile.skills.some(ms => ms.name.toLowerCase() === s.name.toLowerCase()));
+        if (shared.length > 0) {
+          score += (shared.length * 2);
+          reasons.push(`${shared.length} shared skills`);
+        }
+      }
+
+      return { ...p.toObject(), score, matchReason: reasons[0] || 'Alumni Network' };
+    });
+
+    // Sort by score desc and take top 5
+    const top = scored.filter(s => s && s.score > 0).sort((a, b) => b.score - a.score).slice(0, 4);
+
+    res.json(top);
+
+  } catch (err) {
+    console.error("Algo error:", err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

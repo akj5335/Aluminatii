@@ -11,10 +11,22 @@ const profileSchema = new mongoose.Schema({
   company: { type: String },
   designation: { type: String },
   location: { type: String },
+  coordinates: {
+    lat: { type: Number },
+    lng: { type: Number }
+  },
   socialLinks: { linkedin: String, github: String, twitter: String, website: String },
+  badges: [{
+    name: String,
+    icon: String,
+    earnedAt: { type: Date, default: Date.now }
+  }],
   achievements: [String],
   bio: { type: String },
-  skills: { type: [String], default: [] },
+  skills: [{
+    name: { type: String, required: true },
+    endorsements: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+  }],
   experience: { type: String }, // e.g., "2-5 years"
   photoURL: { type: String },
   isPublic: { type: Boolean, default: true },

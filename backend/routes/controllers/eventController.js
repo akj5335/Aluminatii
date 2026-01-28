@@ -33,3 +33,21 @@ export const toggleRSVP = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+export const deleteEvent = async (req, res) => {
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
+
+    // Check if user is creator
+    if (event.createdBy.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    await event.deleteOne();
+    res.json({ message: 'Event deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

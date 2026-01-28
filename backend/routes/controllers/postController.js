@@ -2,10 +2,10 @@ import Post from '../../models/Posts.js';
 
 export const createPost = async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content, image } = req.body;
     if (!content) return res.status(400).json({ message: 'Content required' });
 
-    const post = await Post.create({ user: req.user._id, content });
+    const post = await Post.create({ user: req.user._id, content, image });
     res.json(await post.populate('user', 'name'));
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

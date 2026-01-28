@@ -22,6 +22,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import messageRoutes from "./routes/messageRoutes.js";
 import oauthRoutes from "./routes/oauthRoutes.js";
+import startupRoutes from "./routes/startupRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -52,6 +53,7 @@ app.use("/api/mentorship", mentorshipRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/startups", startupRoutes);
 app.use("/auth", oauthRoutes);
 
 // Serve uploaded files
