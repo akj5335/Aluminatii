@@ -85,6 +85,17 @@ export const sendMessage = async (req, res) => {
         await message.populate('sender', 'name photoURL');
         await message.populate('recipient', 'name photoURL');
 
+        // Real-time delivery via Socket.io
+        if (req.io && req.userSockets) {
+            const recipientSocketId = req.userSockets.get(recipientId);
+            if (recipientSocketId) {
+                req.io.to(recipientSocketId).emit('receive_message', {
+                    ...message.toObject(),
+                    senderId: req.user.id // ensure compatibility with frontend
+                });
+            }
+        }
+
         res.status(201).json(message);
     } catch (error) {
         res.status(400).json({ message: error.message });

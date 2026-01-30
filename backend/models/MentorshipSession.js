@@ -12,6 +12,8 @@ const mentorshipSessionSchema = new mongoose.Schema({
         enum: ['Pending', 'Accepted', 'Rejected', 'Completed'],
         default: 'Pending'
     },
+    rating: { type: Number, min: 1, max: 5 },
+    feedback: String,
     meetingLink: String,
     createdAt: { type: Date, default: Date.now }
 });

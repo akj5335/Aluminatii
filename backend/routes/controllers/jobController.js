@@ -18,6 +18,10 @@ export const getJobs = async (req, res) => {
             query.type = type;
         }
 
+        if (req.query.remote === 'true') {
+            query.remote = true;
+        }
+
         if (location) {
             query.location = { $regex: location, $options: 'i' };
         }

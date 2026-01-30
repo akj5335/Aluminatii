@@ -39,6 +39,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Socket.io connection handling
+const userSockets = new Map(); // Store userId -> socketId mapping
+
+app.use((req, res, next) => {
+  req.io = io;
+  req.userSockets = userSockets;
+  next();
+});
+
 // Initialize Passport
 app.use(passport.initialize());
 app.use(express.static(join(__dirname, '../frontend')));
@@ -59,9 +68,6 @@ app.use("/auth", oauthRoutes);
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
-// Socket.io connection handling
-const userSockets = new Map(); // Store userId -> socketId mapping
-
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
@@ -69,17 +75,6 @@ io.on("connection", (socket) => {
   socket.on('user_online', (userId) => {
     userSockets.set(userId, socket.id);
     console.log(`User ${userId} is online`);
-  });
-
-  // Handle real-time message sending
-  socket.on('send_message', async (data) => {
-    const { recipientId, senderId, content } = data;
-
-    // Send to recipient if online
-    const recipientSocketId = userSockets.get(recipientId);
-    if (recipientSocketId) {
-      io.to(recipientSocketId).emit('receive_message', data);
-    }
   });
 
   socket.on("disconnect", () => {

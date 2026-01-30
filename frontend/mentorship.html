@@ -129,27 +129,71 @@
         </div>
       </div>
     </div>
-  </div>
+    <!-- Review Modal -->
+    <div id="reviewModal" class="fixed inset-0 z-[100] hidden">
+      <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" onclick="this.parentElement.classList.add('hidden')">
+      </div>
+      <div class="relative flex items-center justify-center min-h-screen p-4">
+        <div
+          class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-sm p-8 transform transition-all border dark:border-slate-700">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">Rate Session</h3>
+            <button onclick="document.getElementById('reviewModal').classList.add('hidden')"
+              class="text-slate-400 hover:text-slate-600">
+              <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+          </div>
+          <form id="reviewForm" class="space-y-4">
+            <input type="hidden" id="reviewSessionId">
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Rating</label>
+              <div class="flex gap-2 text-2xl" id="starRating">
+                <i class="fa-regular fa-star cursor-pointer text-yellow-400 hover:scale-110 transition-all"
+                  onclick="setRating(1)"></i>
+                <i class="fa-regular fa-star cursor-pointer text-yellow-400 hover:scale-110 transition-all"
+                  onclick="setRating(2)"></i>
+                <i class="fa-regular fa-star cursor-pointer text-yellow-400 hover:scale-110 transition-all"
+                  onclick="setRating(3)"></i>
+                <i class="fa-regular fa-star cursor-pointer text-yellow-400 hover:scale-110 transition-all"
+                  onclick="setRating(4)"></i>
+                <i class="fa-regular fa-star cursor-pointer text-yellow-400 hover:scale-110 transition-all"
+                  onclick="setRating(5)"></i>
+              </div>
+              <input type="hidden" id="ratingValue" required>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Feedback</label>
+              <textarea id="reviewFeedback" rows="3" placeholder="How was your session?"
+                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none"></textarea>
+            </div>
+            <button type="submit"
+              class="w-full py-3 rounded-xl bg-yellow-500 text-white font-bold shadow-lg shadow-yellow-500/30 hover:bg-yellow-600 transition-all mt-4">
+              Submit Review
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
 
-  <script src="script.js"></script>
-  <script>
-    async function loadMentors() {
-      const grid = document.getElementById('mentors-grid');
-      try {
-        const mentors = await apiFetch('/api/mentorship/mentors');
-        grid.innerHTML = '';
+    <script src="script.js"></script>
+    <script>
+      async function loadMentors() {
+        const grid = document.getElementById('mentors-grid');
+        try {
+          const mentors = await apiFetch('/api/mentorship/mentors');
+          grid.innerHTML = '';
 
-        if (!mentors || mentors.length === 0) {
-          grid.innerHTML = `<p class="text-center col-span-3 text-slate-500">No available mentors found at the moment.</p>`;
-          return;
-        }
+          if (!mentors || mentors.length === 0) {
+            grid.innerHTML = `<p class="text-center col-span-3 text-slate-500">No available mentors found at the moment.</p>`;
+            return;
+          }
 
-        mentors.forEach(profile => {
-          if (!profile.user) return; // Skip if population failed
+          mentors.forEach(profile => {
+            if (!profile.user) return; // Skip if population failed
 
-          const photo = profile.user.photoURL || `https://ui-avatars.com/api/?name=${profile.user.name}`;
+            const photo = profile.user.photoURL || `https://ui-avatars.com/api/?name=${profile.user.name}`;
 
-          const card = `
+            const card = `
                     <div class="glass-card rounded-2xl p-8 flex flex-col items-center text-center border border-white/60 dark:border-slate-700 shadow-sm hover:shadow-2xl hover:shadow-indigo-500/10 transition-all group dark:bg-slate-800/50">
                         <div class="relative mb-6">
                             <div class="w-24 h-24 rounded-full p-1 bg-gradient-to-tr from-primary to-secondary">
@@ -159,8 +203,15 @@
                         </div>
                         
                         <h3 class="text-xl font-bold text-slate-900 dark:text-white mb-1">${profile.user.name}</h3>
-                        <p class="text-primary font-medium text-sm mb-4">${profile.designation || 'Alumni'} ${profile.company ? 'at ' + profile.company : ''}</p>
+                        <p class="text-primary font-medium text-sm mb-2">${profile.designation || 'Alumni'} ${profile.company ? 'at ' + profile.company : ''}</p>
                         
+                        ${profile.rating > 0 ? `
+                        <div class="flex items-center gap-1 mb-4 text-yellow-500 text-sm">
+                             <i class="fa-solid fa-star"></i>
+                             <span class="font-bold text-slate-700 dark:text-slate-300">${profile.rating}</span>
+                             <span class="text-slate-400 text-xs">(${profile.reviewCount} reviews)</span>
+                        </div>` : '<div class="mb-4 h-5"></div>'}
+
                         <p class="text-slate-500 dark:text-slate-400 text-sm mb-6 line-clamp-3">
                             ${profile.bio || "Passionate about helping the next generation. Let's connect and grow together."}
                         </p>
@@ -176,75 +227,75 @@
                         </button>
                     </div>
                     `;
-          grid.insertAdjacentHTML('beforeend', card);
-        });
+            grid.insertAdjacentHTML('beforeend', card);
+          });
 
-      } catch (err) {
-        console.error(err);
-        if (grid.children.length > 0 && grid.children[0].classList.contains('animate-pulse')) {
-          grid.innerHTML = `<p class="text-red-500 text-center col-span-3">Failed to load mentors.</p>`;
+        } catch (err) {
+          console.error(err);
+          if (grid.children.length > 0 && grid.children[0].classList.contains('animate-pulse')) {
+            grid.innerHTML = `<p class="text-red-500 text-center col-span-3">Failed to load mentors.</p>`;
+          }
         }
       }
-    }
 
-    async function requestMentorship(id) {
-      if (!isLoggedIn()) return openModal('login');
-      document.getElementById('bookMentorId').value = id;
-      document.getElementById('bookingModal').classList.remove('hidden');
-    }
-
-    document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = {
-        mentorId: e.target.mentorId.value,
-        date: e.target.date.value,
-        duration: e.target.duration.value,
-        topic: e.target.topic.value,
-        note: e.target.note.value
-      };
-
-      try {
-        await apiFetch('/api/mentorship/session/request', 'POST', data);
-        showToast('Session requested successfully!');
-        document.getElementById('bookingModal').classList.add('hidden');
-        e.target.reset();
-      } catch (err) {
-        showToast(err.message, 'error');
+      async function requestMentorship(id) {
+        if (!isLoggedIn()) return openModal('login');
+        document.getElementById('bookMentorId').value = id;
+        document.getElementById('bookingModal').classList.remove('hidden');
       }
-    });
 
-    async function openSessionsModal() {
-      if (!isLoggedIn()) return openModal('login');
-      document.getElementById('sessionsModal').classList.remove('hidden');
-      loadSessions();
-    }
+      document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = {
+          mentorId: e.target.mentorId.value,
+          date: e.target.date.value,
+          duration: e.target.duration.value,
+          topic: e.target.topic.value,
+          note: e.target.note.value
+        };
 
-    async function loadSessions() {
-      const list = document.getElementById('sessions-list');
-      list.innerHTML = '<div class="text-center py-10 text-slate-500">Loading...</div>';
-
-      try {
-        const sessions = await apiFetch('/api/mentorship/sessions');
-        list.innerHTML = '';
-
-        if (!sessions || sessions.length === 0) {
-          list.innerHTML = '<div class="text-center py-10 text-slate-500">No sessions found.</div>';
-          return;
+        try {
+          await apiFetch('/api/mentorship/session/request', 'POST', data);
+          showToast('Session requested successfully!');
+          document.getElementById('bookingModal').classList.add('hidden');
+          e.target.reset();
+        } catch (err) {
+          showToast(err.message, 'error');
         }
+      });
 
-        const currentUser = getUser();
+      async function openSessionsModal() {
+        if (!isLoggedIn()) return openModal('login');
+        document.getElementById('sessionsModal').classList.remove('hidden');
+        loadSessions();
+      }
 
-        sessions.forEach(session => {
-          const isMentor = session.mentor._id === currentUser._id;
-          const otherUser = isMentor ? session.mentee : session.mentor;
-          const statusColors = {
-            'Pending': 'bg-yellow-100 text-yellow-700',
-            'Accepted': 'bg-green-100 text-green-700',
-            'Rejected': 'bg-red-100 text-red-700',
-            'Completed': 'bg-slate-100 text-slate-700'
-          };
+      async function loadSessions() {
+        const list = document.getElementById('sessions-list');
+        list.innerHTML = '<div class="text-center py-10 text-slate-500">Loading...</div>';
 
-          const item = `
+        try {
+          const sessions = await apiFetch('/api/mentorship/sessions');
+          list.innerHTML = '';
+
+          if (!sessions || sessions.length === 0) {
+            list.innerHTML = '<div class="text-center py-10 text-slate-500">No sessions found.</div>';
+            return;
+          }
+
+          const currentUser = getUser();
+
+          sessions.forEach(session => {
+            const isMentor = session.mentor._id === currentUser._id;
+            const otherUser = isMentor ? session.mentee : session.mentor;
+            const statusColors = {
+              'Pending': 'bg-yellow-100 text-yellow-700',
+              'Accepted': 'bg-green-100 text-green-700',
+              'Rejected': 'bg-red-100 text-red-700',
+              'Completed': 'bg-slate-100 text-slate-700'
+            };
+
+            const item = `
                     <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex flex-col md:flex-row justify-between gap-4">
                         <div class="flex gap-4">
                             <img src="${otherUser.photoURL || 'https://ui-avatars.com/api/?name=User'}" class="w-12 h-12 rounded-full object-cover">
@@ -269,45 +320,96 @@
                              ${session.status === 'Accepted' && (session.meetingLink || isMentor) ? `
                                 ${isMentor ? `
                                     <button onclick="addLink('${session._id}')" class="text-xs text-primary underline">Add/Update Link</button>
+                                    <button onclick="updateStatus('${session._id}', 'Completed')" class="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs hover:bg-slate-300 transition-all">Mark Complete</button>
                                 ` : ''}
                                 ${session.meetingLink ? `<a href="${session.meetingLink}" target="_blank" class="px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-indigo-600 transition-all"><i class="fa-solid fa-video mr-2"></i> Join Meeting</a>` : ''}
+                             ` : ''}
+
+                             ${session.status === 'Completed' && !isMentor && !session.rating ? `
+                                <button onclick="openReviewModal('${session._id}')" class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-semibold hover:bg-yellow-200 transition-all">
+                                    <i class="fa-regular fa-star mr-1"></i> Leave Review
+                                </button>
+                             ` : ''}
+                             
+                             ${session.rating ? `
+                                <div class="text-yellow-500 text-sm font-bold flex items-center gap-1">
+                                    <i class="fa-solid fa-star"></i> ${session.rating}
+                                </div>
                              ` : ''}
                         </div>
                     </div>
                 `;
-          list.insertAdjacentHTML('beforeend', item);
-        });
+            list.insertAdjacentHTML('beforeend', item);
+          });
 
-      } catch (err) {
-        console.error(err);
-        list.innerHTML = `<p class="text-red-500 text-center">Failed to load sessions.</p>`;
+        } catch (err) {
+          console.error(err);
+          list.innerHTML = `<p class="text-red-500 text-center">Failed to load sessions.</p>`;
+        }
       }
-    }
 
-    async function updateStatus(id, status) {
-      try {
-        await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { status });
-        showToast(`Session ${status.toLowerCase()}`);
-        loadSessions();
-      } catch (err) {
-        showToast(err.message, 'error');
+      async function updateStatus(id, status) {
+        try {
+          await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { status });
+          showToast(`Session ${status.toLowerCase()}`);
+          loadSessions();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
       }
-    }
 
-    async function addLink(id) {
-      const link = prompt("Enter meeting link (Zoom/Google Meet):");
-      if (!link) return;
-      try {
-        await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { meetingLink: link });
-        showToast('Meeting link updated');
-        loadSessions();
-      } catch (err) {
-        showToast(err.message, 'error');
+      async function addLink(id) {
+        const link = prompt("Enter meeting link (Zoom/Google Meet):");
+        if (!link) return;
+        try {
+          await apiFetch(`/api/mentorship/session/${id}`, 'PATCH', { meetingLink: link });
+          showToast('Meeting link updated');
+          loadSessions();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
       }
-    }
 
-    document.addEventListener('DOMContentLoaded', loadMentors);
-  </script>
+      function openReviewModal(sessionId) {
+        document.getElementById('reviewSessionId').value = sessionId;
+        document.getElementById('reviewModal').classList.remove('hidden');
+        setRating(0); // Reset
+      }
+
+      function setRating(val) {
+        document.getElementById('ratingValue').value = val;
+        const stars = document.getElementById('starRating').children;
+        for (let i = 0; i < 5; i++) {
+          if (i < val) {
+            stars[i].classList.remove('fa-regular');
+            stars[i].classList.add('fa-solid');
+          } else {
+            stars[i].classList.remove('fa-solid');
+            stars[i].classList.add('fa-regular');
+          }
+        }
+      }
+
+      document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('reviewSessionId').value;
+        const rating = document.getElementById('ratingValue').value;
+        const feedback = document.getElementById('reviewFeedback').value;
+
+        if (!rating) return showToast('Please select a rating', 'error');
+
+        try {
+          await apiFetch(`/api/mentorship/session/${id}/feedback`, 'POST', { rating, feedback });
+          showToast('Review submitted!');
+          document.getElementById('reviewModal').classList.add('hidden');
+          loadSessions(); // Refresh list
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', loadMentors);
+    </script>
 </body>
 
 </html>

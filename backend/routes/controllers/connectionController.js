@@ -1,4 +1,5 @@
 import Connection from '../../models/Connection.js';
+import { createNotification } from './notificationController.js';
 
 export const requestConnection = async (req, res) => {
   try {
@@ -15,6 +16,17 @@ export const requestConnection = async (req, res) => {
     if (exists) return res.status(400).json({ message: 'Connection exists' });
 
     const connection = await Connection.create({ requester: req.user._id, receiver: receiverId });
+
+    // Notify Receiver
+    await createNotification(
+      receiverId,
+      req.user._id,
+      'connection_request',
+      'New Connection Request',
+      `${req.user.name} wants to connect with you.`,
+      '/dashboard.html'
+    );
+
     res.json(connection);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
@@ -30,6 +42,21 @@ export const respond = async (req, res) => {
 
     connection.status = action === 'accept' ? 'accepted' : 'declined';
     await connection.save();
+
+    if (action === 'accept') {
+      const User = (await import('../../models/User.js')).default;
+      const receiverUser = await User.findById(req.user._id);
+
+      await createNotification(
+        connection.requester,
+        req.user._id,
+        'connection_accepted',
+        'Connection Accepted',
+        `${receiverUser.name} accepted your connection request.`,
+        `/profile.html?id=${req.user._id}`
+      );
+    }
+
     res.json(connection);
   } catch (err) {
     res.status(500).json({ message: 'Server error' });

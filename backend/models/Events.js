@@ -6,6 +6,8 @@ const eventSchema = new mongoose.Schema({
   date: { type: Date, required: true },
   location: String,
   videoLink: String,
+  virtualLink: String, // e.g., Zoom/Meet link
+  capacity: { type: Number },
   attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   interactions: [{ type: String }],
   roundtables: [{

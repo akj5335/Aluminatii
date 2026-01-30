@@ -182,17 +182,10 @@
             if (!content || !currentChatUserId) return;
 
             try {
-                const msg = await apiFetch('/api/messages', 'POST', {
+                // Send via API (Backend handles real-time delivery)
+                await apiFetch('/api/messages', 'POST', {
                     recipientId: currentChatUserId,
                     content
-                });
-
-                // Send via Socket.IO for real-time delivery
-                socket.emit('send_message', {
-                    recipientId: currentChatUserId,
-                    senderId: currentUser.id,
-                    content,
-                    createdAt: new Date()
                 });
 
                 appendMessage({ content, sender: currentUser.id }, true);

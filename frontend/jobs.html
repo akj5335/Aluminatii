@@ -57,26 +57,35 @@
         <!-- Search & Filters -->
         <div
             class="glass-card rounded-2xl p-4 mb-8 border border-white/50 dark:border-slate-700 shadow-sm flex flex-col md:flex-row gap-4 items-center">
-            <div class="relative flex-1 w-full">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" id="searchInput" placeholder="Search jobs, companies, or skills..."
-                    class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary outline-none text-sm">
-            </div>
-            <div class="flex gap-4 w-full md:w-auto">
-                <select id="typeFilter"
-                    class="flex-1 md:w-40 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary outline-none text-sm">
-                    <option value="All">All Types</option>
-                    <option value="Full-time">Full-time</option>
-                    <option value="Part-time">Part-time</option>
-                    <option value="Internship">Internship</option>
-                    <option value="Remote">Remote</option>
-                    <option value="Contract">Contract</option>
-                </select>
-                <button onclick="loadJobs()"
-                    class="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-600 transition-all">
-                    Search
-                </button>
-            </div>
+            <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="searchInput" placeholder="Search jobs, companies, or skills..."
+                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary outline-none text-sm">
+        </div>
+        <div class="relative flex-1 w-full md:w-auto">
+            <i class="fa-solid fa-location-dot absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="locationInput" placeholder="City, State, or Country"
+                class="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary outline-none text-sm">
+        </div>
+        <div class="flex gap-4 w-full md:w-auto items-center">
+            <label class="flex items-center gap-2 cursor-pointer whitespace-nowrap">
+                <input type="checkbox" id="remoteFilter"
+                    class="w-5 h-5 rounded text-primary focus:ring-primary border-slate-300">
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Remote Only</span>
+            </label>
+            <select id="typeFilter"
+                class="flex-1 md:w-40 px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-900 border-none focus:ring-2 focus:ring-primary outline-none text-sm">
+                <option value="All">All Types</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Internship">Internship</option>
+                <option value="Remote">Remote</option>
+                <option value="Contract">Contract</option>
+            </select>
+            <button onclick="loadJobs()"
+                class="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-indigo-600 transition-all">
+                Search
+            </button>
+        </div>
         </div>
         <div id="jobs-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             <!-- Loading Skeleton -->
@@ -141,8 +150,23 @@
                                 <option value="Part-time">Part-time</option>
                                 <option value="Internship">Internship</option>
                                 <option value="Remote">Remote</option>
+                                <option value="Contract">Contract</option>
                             </select>
                         </div>
+                        <div class="flex items-center gap-2 mt-6">
+                            <input type="checkbox" name="remote" id="jobRemote"
+                                class="w-5 h-5 rounded text-primary focus:ring-primary border-slate-300">
+                            <label for="jobRemote" class="text-sm font-medium text-slate-700 dark:text-slate-300">This
+                                is a remote position</label>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Application
+                            Deadline</label>
+                        <input type="date" name="applicationDeadline"
+                            class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary outline-none">
+                    </div>
+                    <div class="grid grid-cols-1 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Salary
                                 Range</label>
@@ -237,7 +261,9 @@
             const grid = document.getElementById('jobs-grid');
             const noJobs = document.getElementById('no-jobs');
             const search = document.getElementById('searchInput').value;
+            const location = document.getElementById('locationInput').value;
             const type = document.getElementById('typeFilter').value;
+            const remote = document.getElementById('remoteFilter').checked;
 
             try {
                 grid.innerHTML = `
@@ -251,7 +277,7 @@
                         </div>
                     </div>`;
 
-                const jobs = await apiFetch(`/api/jobs?search=${encodeURIComponent(search)}&type=${encodeURIComponent(type)}`);
+                const jobs = await apiFetch(`/api/jobs?search=${encodeURIComponent(search)}&location=${encodeURIComponent(location)}&type=${encodeURIComponent(type)}&remote=${remote}`);
                 grid.innerHTML = '';
 
                 if (!jobs || jobs.length === 0) {
@@ -264,6 +290,7 @@
                 jobs.forEach(job => {
                     const daysAgo = Math.floor((new Date() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24));
                     const timeAgo = daysAgo === 0 ? 'Today' : `${daysAgo}d ago`;
+                    const deadline = job.applicationDeadline ? new Date(job.applicationDeadline).toLocaleDateString() : null;
 
                     const card = `
                     <div class="glass-card rounded-2xl p-6 border border-white/50 dark:border-slate-700 shadow-sm hover:shadow-xl hover:shadow-cyan-500/10 dark:hover:shadow-cyan-900/20 transition-all group dark:bg-slate-800 flex flex-col justify-between">
@@ -278,7 +305,10 @@
                                         <p class="text-sm text-slate-500 dark:text-slate-400">${job.company}</p>
                                     </div>
                                 </div>
-                                <span class="bg-indigo-50 dark:bg-indigo-900/30 text-primary text-xs font-semibold px-2 py-1 rounded">${job.type}</span>
+                                <div class="flex flex-col items-end gap-2">
+                                     <span class="bg-indigo-50 dark:bg-indigo-900/30 text-primary text-xs font-semibold px-2 py-1 rounded">${job.type}</span>
+                                     ${job.remote ? '<span class="bg-green-50 dark:bg-green-900/30 text-green-600 text-xs font-semibold px-2 py-1 rounded">Remote</span>' : ''}
+                                </div>
                             </div>
                             
                             <p class="text-slate-600 dark:text-slate-400 text-sm mb-4 line-clamp-3">${job.description || 'No description.'}</p>
@@ -286,6 +316,7 @@
                             <div class="flex flex-wrap gap-2 mb-6 text-xs text-slate-500 font-medium">
                                 ${job.salary ? `<span class="bg-green-50 dark:bg-green-900/20 text-green-600 px-2 py-1 rounded"><i class="fa-solid fa-money-bill-wave mr-1"></i> ${job.salary}</span>` : ''}
                                 <span class="bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded"><i class="fa-regular fa-clock mr-1"></i> ${timeAgo}</span>
+                                ${deadline ? `<span class="bg-red-50 dark:bg-red-900/20 text-red-600 px-2 py-1 rounded"><i class="fa-solid fa-hourglass-end mr-1"></i> Apply by ${deadline}</span>` : ''}
                             </div>
                         </div>
 
@@ -318,6 +349,8 @@
                 title: form.title.value,
                 company: form.company.value,
                 type: form.type.value,
+                remote: form.remote.checked,
+                applicationDeadline: form.applicationDeadline.value || null,
                 salary: form.salary.value,
                 description: form.description.value,
                 link: form.link.value
@@ -335,9 +368,12 @@
         }
 
         document.getElementById('createJobForm').addEventListener('submit', createJob);
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') loadJobs();
-        });
+
+        // Search & Filter Listeners
+        document.getElementById('searchInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') loadJobs(); });
+        document.getElementById('locationInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') loadJobs(); });
+        document.getElementById('remoteFilter').addEventListener('change', loadJobs);
+        document.getElementById('typeFilter').addEventListener('change', loadJobs);
         document.addEventListener('DOMContentLoaded', loadJobs);
     </script>
 </body>
