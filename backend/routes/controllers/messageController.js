@@ -74,29 +74,31 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const { recipientId, content } = req.body;
+        const senderId = req.user.id;
 
-        const message = new Message({
-            sender: req.user.id,
+        const newMessage = new Message({
+            sender: senderId,
             recipient: recipientId,
-            content
+            content,
+            status: 'sent'
         });
 
-        await message.save();
-        await message.populate('sender', 'name photoURL');
-        await message.populate('recipient', 'name photoURL');
+        await newMessage.save();
+        await newMessage.populate('sender', 'name photoURL');
+        await newMessage.populate('recipient', 'name photoURL');
 
         // Real-time delivery via Socket.io
         if (req.io && req.userSockets) {
             const recipientSocketId = req.userSockets.get(recipientId);
             if (recipientSocketId) {
                 req.io.to(recipientSocketId).emit('receive_message', {
-                    ...message.toObject(),
+                    ...newMessage.toObject(),
                     senderId: req.user.id // ensure compatibility with frontend
                 });
             }
         }
 
-        res.status(201).json(message);
+        res.status(201).json(newMessage);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -110,6 +112,27 @@ export const getUnreadCount = async (req, res) => {
             read: false
         });
         res.json({ count });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// Mark messages as read
+export const markAsRead = async (req, res) => {
+    try {
+        const { messageIds } = req.body;
+        const userId = req.user.id;
+
+        if (!messageIds || !Array.isArray(messageIds)) {
+            return res.status(400).json({ message: 'messageIds array is required' });
+        }
+
+        await Message.updateMany(
+            { _id: { $in: messageIds }, recipient: userId },
+            { read: true }
+        );
+
+        res.json({ message: 'Messages marked as read' });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

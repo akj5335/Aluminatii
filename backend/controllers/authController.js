@@ -21,8 +21,7 @@ export const register = async (req, res) => {
             collegeId,
             batchYear,
             branch,
-            degree,
-            gender,
+            role: role || 'student',
             college: "Generic College" // Default value or from req.body
         });
 
@@ -67,4 +66,28 @@ export const me = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
-}
+};
+
+// Forgot Password Stub
+export const forgotPassword = async (req, res, next) => {
+    try {
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        // Logic to generate token and send email would go here
+        res.status(200).json({ message: 'Email sent' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Reset Password Stub
+export const resetPassword = async (req, res, next) => {
+    try {
+        // Logic to verify token and reset password would go here
+        res.status(200).json({ message: 'Password reset successful' });
+    } catch (error) {
+        next(error);
+    }
+};

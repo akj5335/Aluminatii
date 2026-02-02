@@ -3,14 +3,18 @@ import Profile from '../../models/Profile.js';
 
 export const getJobs = async (req, res) => {
     try {
-        const { search, type, location } = req.query;
+        const { search, type, location, page = 1, limit = 10 } = req.query;
+        const skip = (page - 1) * limit;
+
         let query = {};
 
         if (search) {
+            const searchRegex = new RegExp(search, 'i');
             query.$or = [
-                { title: { $regex: search, $options: 'i' } },
-                { company: { $regex: search, $options: 'i' } },
-                { description: { $regex: search, $options: 'i' } }
+                { title: searchRegex },
+                { company: searchRegex },
+                { description: searchRegex },
+                { location: searchRegex }
             ];
         }
 
@@ -26,8 +30,20 @@ export const getJobs = async (req, res) => {
             query.location = { $regex: location, $options: 'i' };
         }
 
-        const jobs = await Job.find(query).sort({ createdAt: -1 }).populate('postedBy', 'name photoURL');
-        res.json(jobs);
+        const jobs = await Job.find(query)
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit))
+            .populate('postedBy', 'name photoURL');
+
+        const total = await Job.countDocuments(query);
+
+        res.json({
+            jobs,
+            totalPages: Math.ceil(total / limit),
+            currentPage: parseInt(page),
+            totalJobs: total
+        });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -75,6 +91,17 @@ export const getRecommendedJobs = async (req, res) => {
                 reasons.push('Location match');
             }
 
+            // Experience matching (+15 points)
+            // Parse experience string (e.g. "3 years", "2-5 years") to a number
+            const userExpStr = profile.experience || "0";
+            const userExp = parseInt(userExpStr.match(/\d+/)?.[0] || "0");
+            const jobMinExp = job.minExperience || 0;
+
+            if (userExp >= jobMinExp) {
+                score += 15;
+                reasons.push('Experience match');
+            }
+
             // Recent posting bonus (10 points)
             const daysSincePost = (Date.now() - new Date(job.createdAt)) / (1000 * 60 * 60 * 24);
             if (daysSincePost < 7) {
@@ -105,6 +132,7 @@ export const createJob = async (req, res) => {
     try {
         const job = new Job({
             ...req.body,
+            minExperience: req.body.minExperience || 0,
             postedBy: req.user.id
         });
         const savedJob = await job.save();

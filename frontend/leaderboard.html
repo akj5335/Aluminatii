@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumni Leaderboard | Aluminati</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Outfit', 'sans-serif'], heading: ['Poppins', 'sans-serif'] },
+                    colors: { primary: '#4F46E5', secondary: '#06B6D4', accent: '#F43F5E', dark: '#0F172A', 'dark-lighter': '#1E293B' }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="api.js"></script>
+</head>
+
+<body class="bg-slate-50 dark:bg-dark text-slate-800 dark:text-slate-200 antialiased">
+    <!-- Navbar injected by script.js -->
+
+    <main class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div class="mb-10 text-center fade-in">
+            <h1 class="text-4xl font-heading font-bold text-slate-900 dark:text-white mb-2">Community Hall of Fame</h1>
+            <p class="text-slate-600 dark:text-slate-400">Recognizing our most active and influential alumni.</p>
+        </div>
+
+        <div
+            class="glass-card rounded-2xl overflow-hidden shadow-xl border border-white/50 dark:border-slate-700 bg-white dark:bg-slate-800">
+            <table class="w-full text-left">
+                <thead
+                    class="bg-indigo-50 dark:bg-slate-700/50 text-indigo-900 dark:text-indigo-100 uppercase text-xs font-bold tracking-wider">
+                    <tr>
+                        <th class="p-6 w-20 text-center">Rank</th>
+                        <th class="p-6">Alumni</th>
+                        <th class="p-6 hidden sm:table-cell">Reputation</th>
+                        <th class="p-6 hidden md:table-cell">Badges</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body" class="divide-y divide-slate-100 dark:divide-slate-700">
+                    <!-- Dynamic Content -->
+                    <tr class="animate-pulse">
+                        <td class="p-6 text-center">
+                            <div class="w-8 h-8 bg-slate-200 rounded-full mx-auto"></div>
+                        </td>
+                        <td class="p-6">
+                            <div class="w-48 h-6 bg-slate-200 rounded"></div>
+                        </td>
+                        <td class="p-6">
+                            <div class="w-12 h-6 bg-slate-200 rounded"></div>
+                        </td>
+                        <td class="p-6">
+                            <div class="w-24 h-6 bg-slate-200 rounded"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        async function loadLeaderboard() {
+            const tbody = document.getElementById('leaderboard-body');
+            try {
+                const profiles = await apiFetch('/api/leaderboard');
+                tbody.innerHTML = '';
+
+                if (profiles.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500">No data available yet.</td></tr>';
+                    return;
+                }
+
+                profiles.forEach((profile, index) => {
+                    const rank = index + 1;
+                    const u = profile.user || { name: 'Unknown', photoURL: '' };
+                    const photo = u.photoURL || `https://ui-avatars.com/api/?name=${u.name}`;
+                    const score = profile.reputationScore || 0;
+
+                    // Badges Logic (Display first 3)
+                    let badgesHtml = '';
+                    if (profile.badges && profile.badges.length > 0) {
+                        badgesHtml = profile.badges.slice(0, 3).map(b =>
+                            `<span title="${b.name}" class="inline-block px-2 py-1 text-[10px] rounded bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 mr-1"><i class="${b.icon || 'fa-solid fa-medal'}"></i> ${b.name}</span>`
+                        ).join('');
+                        if (profile.badges.length > 3) badgesHtml += `<span class="text-xs text-slate-400">+${profile.badges.length - 3}</span>`;
+                    } else {
+                        badgesHtml = '<span class="text-xs text-slate-400 italic">No badges</span>';
+                    }
+
+                    // Rank Styling
+                    let rankDisplay = `<span class="font-bold text-slate-500">#${rank}</span>`;
+                    if (rank === 1) rankDisplay = `<div class="w-8 h-8 rounded-full bg-yellow-400 text-white flex items-center justify-center font-bold shadow mx-auto">1</div>`;
+                    if (rank === 2) rankDisplay = `<div class="w-8 h-8 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center font-bold shadow mx-auto">2</div>`;
+                    if (rank === 3) rankDisplay = `<div class="w-8 h-8 rounded-full bg-amber-600 text-white flex items-center justify-center font-bold shadow mx-auto">3</div>`;
+
+                    const row = `
+                    <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                        <td class="p-6 text-center">${rankDisplay}</td>
+                        <td class="p-6">
+                            <div class="flex items-center gap-4">
+                                <img src="${photo}" class="w-12 h-12 rounded-full object-cover bg-slate-200 border border-white dark:border-slate-600 shadow-sm">
+                                <div>
+                                    <div class="font-bold text-slate-900 dark:text-white">${u.name}</div>
+                                    <div class="text-sm text-slate-500">${profile.designation || 'Alumni'} at ${profile.company || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-6 hidden sm:table-cell">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-fire text-orange-500"></i>
+                                <span class="font-bold text-lg text-slate-700 dark:text-slate-200">${score}</span>
+                            </div>
+                        </td>
+                        <td class="p-6 hidden md:table-cell">
+                            <div class="flex flex-wrap gap-1">${badgesHtml}</div>
+                        </td>
+                    </tr>
+                    `;
+                    tbody.insertAdjacentHTML('beforeend', row);
+                });
+
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-red-500">Failed to load leaderboard.</td></tr>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inject Navbar first if not present (script.js usually does this, but we call it manualy to be safe or rely on script.js auth listener)
+            if (window.injectNavbar) window.injectNavbar();
+            loadLeaderboard();
+        });
+    </script>
+</body>
+
+</html>

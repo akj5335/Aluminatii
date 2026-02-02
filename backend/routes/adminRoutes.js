@@ -1,11 +1,16 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const adminController = require('../controllers/adminController');
-const auth = require('../middleware/authMiddleware');
-const adminOnly = require('../middleware/adminMiddleware');
+import * as adminController from './controllers/adminController.js';
+import auth from '../middleware/authMiddleware.js';
+import { authorize } from '../middleware/roleMiddleware.js';
 
-router.get('/users', auth, adminOnly, adminController.getUsers);
-router.post('/users/:userId/approve', auth, adminOnly, adminController.approveUser);
-router.get('/stats', auth, adminOnly, adminController.stats);
+// Get all users (Admin only)
+router.get('/users', auth, authorize('admin'), adminController.getUsers);
 
-module.exports = router;
+// Approve/Verify user (Admin only)
+router.patch('/verify-user/:id', auth, authorize('admin'), adminController.verifyUser);
+
+// Get stats (Admin only)
+router.get('/stats', auth, authorize('admin'), adminController.stats);
+
+export default router;

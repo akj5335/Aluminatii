@@ -12,7 +12,15 @@ const jobSchema = new mongoose.Schema({
     applicationDeadline: { type: Date },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     link: String,
+    minExperience: { type: Number, default: 0 },
     createdAt: { type: Date, default: Date.now }
 });
+
+// Compound index for search optimization
+jobSchema.index({ title: 'text', company: 'text', description: 'text', location: 'text' });
+// Index for sorting/filtering
+jobSchema.index({ createdAt: -1 });
+jobSchema.index({ type: 1 });
+jobSchema.index({ minExperience: 1 });
 
 export default mongoose.model("Job", jobSchema);

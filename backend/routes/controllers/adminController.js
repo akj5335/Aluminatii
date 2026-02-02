@@ -1,6 +1,7 @@
 import User from '../../models/User.js';
 import Profile from '../../models/Profile.js';
 import Event from '../../models/Events.js';
+import Job from '../../models/Job.js';
 import Post from '../../models/Posts.js';
 
 export const approveUser = async (req, res) => {
@@ -13,6 +14,23 @@ export const approveUser = async (req, res) => {
     res.json({ message: 'Approved', userId });
   } catch (err) {
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.isVerified = true;
+    await user.save();
+
+    // Also update Profile
+    await Profile.findOneAndUpdate({ user: user._id }, { verified: true });
+
+    res.json({ message: "User verified successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 

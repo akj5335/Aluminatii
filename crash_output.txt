@@ -1,0 +1,57 @@
+﻿node : file:///C:/Users
+/Ajay%20Gadiya/OneDrive
+/Desktop/aluminati/back
+end/routes/messageRoute
+s.js:3
+At line:1 char:1
++ node 
+backend/server.js 2>&1 
+| Select-Object -First 
+20 | Out-File cras ...
++ ~~~~~~~~~~~~~~~~~~~~~
+~~~~~~
+    + CategoryInfo     
+         : NotSpecifi  
+  ed: (file:///C:/Us   
+ er...sageRoutes.js    
+:3:String) [], Rem    
+oteException
+    + FullyQualifiedEr 
+   rorId : NativeComm  
+  andError
+ 
+import { 
+getConversations, 
+getMessages, 
+sendMessage, 
+getUnreadCount, 
+markAsRead } from './co
+ntrollers/messageContro
+ller.js';
+                       
+                       
+                       
+^^^^^^^^^^
+SyntaxError: The 
+requested module './con
+trollers/messageControl
+ler.js' does not 
+provide an export 
+named 'markAsRead'
+    at #_instantiate (n
+ode:internal/modules/es
+m/module_job:254:21)
+    at async 
+ModuleJob.run (node:int
+ernal/modules/esm/modul
+e_job:363:5)
+    at async onImport.t
+racePromise.__proto__ (
+node:internal/modules/e
+sm/loader:702:26)
+    at async asyncRunEn
+tryPointWithESMLoader (
+node:internal/modules/r
+un_main:101:5)
+
+Node.js v24.8.0
